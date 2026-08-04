@@ -4,6 +4,8 @@ import TrackOrderCard from '@/components/faq/TrackOrderCard';
 import { siteConfig } from '@/lib/site-config';
 import { createClient } from '@/lib/supabase/server';
 import { getSectionHeaderImage } from '@/lib/section-header-image';
+import { getSiteSettings } from '@/lib/get-settings';
+import SupportContactCard from '@/components/SupportContactCard';
 
 export const metadata = { title: `Rastrea tu Pedido | ${siteConfig.brand.name}` };
 
@@ -17,6 +19,7 @@ const STEPS = [
 export default async function RastreaPedidoPage() {
   const supabase = createClient();
   const headerImage = await getSectionHeaderImage(supabase);
+  const settings = await getSiteSettings(supabase);
   const { shippingDaysMin, shippingDaysMax } = siteConfig.policies;
 
   return (
@@ -78,6 +81,19 @@ export default async function RastreaPedidoPage() {
             también nuestra{' '}
             <a href="/devoluciones" className="font-semibold text-primary">política de devoluciones</a>.
           </p>
+        </div>
+
+        <div className="mt-10">
+          <SupportContactCard
+            title="¿No encuentras tu pedido?"
+            subtitle="Escríbenos y lo revisamos contigo"
+            whatsappNumber={settings.whatsappNumber}
+            whatsappMessage="Hola, tengo una duda sobre el rastreo de mi pedido."
+            links={[
+              { label: 'Ver política de envíos', href: '/envios' },
+              { label: 'Preguntas frecuentes', href: '/faq' },
+            ]}
+          />
         </div>
       </div>
     </div>

@@ -5,6 +5,7 @@ import { createClient } from '@/lib/supabase/server';
 import SiteChrome from '@/components/SiteChrome';
 import { siteConfig } from '@/lib/site-config';
 import { getBestsellers } from '@/lib/bestsellers';
+import { getSiteSettings } from '@/lib/get-settings';
 
 export const metadata: Metadata = {
   title: `${siteConfig.brand.name} | Péptidos de Investigación`,
@@ -25,6 +26,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   // carrito ahí mismo, y el diluyente (agua bacteriostática) aquí también
   // porque ya tiene su propio recordatorio dedicado (DiluentReminder).
   const recommendedPool = await getBestsellers(supabase, 8, siteConfig.diluent.slug);
+  const settings = await getSiteSettings(supabase);
 
   return (
     <html lang="es">
@@ -39,7 +41,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
       </head>
       <body>
         <CartProvider>
-          <SiteChrome diluentProduct={diluentProduct ?? null} recommendedPool={recommendedPool}>
+          <SiteChrome diluentProduct={diluentProduct ?? null} recommendedPool={recommendedPool} whatsappNumber={settings.whatsappNumber} whatsappMessage={settings.whatsappMessage}>
             {children}
           </SiteChrome>
         </CartProvider>

@@ -1,8 +1,19 @@
 import SectionHeader from './SectionHeader';
 import { createClient } from '@/lib/supabase/server';
 import { getSectionHeaderImage } from '@/lib/section-header-image';
+import { siteConfig } from '@/lib/site-config';
 
-export default async function PolicyLayout({ title, updated, children }: { title: string; updated?: string; children: React.ReactNode }) {
+export default async function PolicyLayout({
+  title,
+  updated,
+  children,
+  contactQuestion,
+}: {
+  title: string;
+  updated?: string;
+  children: React.ReactNode;
+  contactQuestion?: string;
+}) {
   const supabase = createClient();
   const headerImage = await getSectionHeaderImage(supabase);
 
@@ -15,6 +26,17 @@ export default async function PolicyLayout({ title, updated, children }: { title
           {children}
         </div>
       </div>
+
+      {contactQuestion && (
+        <div className="border-t border-border bg-surface py-6 text-center">
+          <p className="text-sm text-muted">
+            {contactQuestion}{' '}
+            <a href={`mailto:${siteConfig.contact.email}`} className="font-semibold text-primary hover:underline">
+              Contáctanos en {siteConfig.contact.email}
+            </a>
+          </p>
+        </div>
+      )}
     </div>
   );
 }

@@ -5,7 +5,7 @@ export const metadata = { title: `Términos y Condiciones | ${siteConfig.brand.n
 
 export default function TerminosPage() {
   return (
-    <PolicyLayout title="Términos y Condiciones">
+    <PolicyLayout title="Términos y Condiciones" contactQuestion="¿Tienes preguntas sobre estos términos?">
       <p>
         Estos términos rigen el uso del sitio web y la compra de productos de{' '}
         {siteConfig.brand.name}. Al usar este sitio o realizar un pedido, aceptas

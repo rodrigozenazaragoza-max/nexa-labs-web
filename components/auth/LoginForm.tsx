@@ -173,6 +173,17 @@ export default function LoginForm() {
           Al continuar confirmas que usarás los productos exclusivamente para investigación
           científica y que eres mayor de edad.
         </p>
+
+        <p className="text-center text-[11px] text-muted">
+          Al continuar, aceptas nuestros{' '}
+          <a href="/terminos" target="_blank" rel="noopener noreferrer" className="font-semibold text-primary hover:underline">
+            Términos de Servicio
+          </a>{' '}
+          y{' '}
+          <a href="/privacidad" target="_blank" rel="noopener noreferrer" className="font-semibold text-primary hover:underline">
+            Política de Privacidad
+          </a>
+        </p>
       </form>
     </div>
   );

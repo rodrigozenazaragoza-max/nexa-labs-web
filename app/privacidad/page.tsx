@@ -5,7 +5,7 @@ export const metadata = { title: `Política de Privacidad | ${siteConfig.brand.n
 
 export default function PrivacidadPage() {
   return (
-    <PolicyLayout title="Política de Privacidad">
+    <PolicyLayout title="Política de Privacidad" contactQuestion="¿Tienes preguntas sobre privacidad?">
       <p>
         En {siteConfig.brand.name} respetamos tu privacidad. Este aviso
         describe qué datos personales recabamos, con qué finalidad y cómo

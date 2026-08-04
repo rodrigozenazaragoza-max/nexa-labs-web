@@ -5,7 +5,7 @@ import Link from 'next/link';
 import ProductCarousel from './ProductCarousel';
 import type { Product } from '@/lib/types';
 
-// Sección "Categoría de producto" — tabs de categoría + carrusel de
+// Sección "Por Categoría" — tabs de categoría + carrusel de
 // productos de la categoría activa, estilo SwissChems. Recibe los
 // productos ya agrupados por categoría (agrupados en el servidor) para no
 // tener que volver a pedirlos al cambiar de tab.
@@ -23,7 +23,7 @@ export default function CategoryTabsSection({
     <section className="bg-primary-light py-16">
       <div className="mx-auto max-w-6xl px-6">
         <div className="text-center">
-          <h2 className="font-heading text-h2 font-bold text-ink">Categoría de producto</h2>
+          <h2 className="font-heading text-h2 font-bold text-ink">Por Categoría</h2>
           <span className="mx-auto mt-3 block h-1 w-14 rounded-full bg-primary" />
         </div>
 

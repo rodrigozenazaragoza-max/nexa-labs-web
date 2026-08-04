@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import { LogOut, Package, Plus, BarChart3, RotateCcw } from 'lucide-react';
+import { LogOut, Package, Plus, BarChart3, RotateCcw, Settings } from 'lucide-react';
 
 export default function AdminTopBar() {
   const pathname = usePathname();
@@ -35,6 +35,9 @@ export default function AdminTopBar() {
             </Link>
             <Link href="/admin/devoluciones" className={linkClass('/admin/devoluciones')}>
               <RotateCcw size={13} /> Devoluciones
+            </Link>
+            <Link href="/admin/configuracion" className={linkClass('/admin/configuracion')}>
+              <Settings size={13} /> Configuración
             </Link>
           </nav>
         </div>

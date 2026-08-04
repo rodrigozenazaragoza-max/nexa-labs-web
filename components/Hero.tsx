@@ -3,15 +3,17 @@ import Link from 'next/link';
 import { createClient } from '@/lib/supabase/server';
 import { productLeadImage } from '@/lib/product-image';
 import { siteConfig } from '@/lib/site-config';
+import { getSiteSettings, buildWhatsAppUrl } from '@/lib/get-settings';
 import type { Product } from '@/lib/types';
 
 // Hero de la home. Las fotos que se ven a la derecha vienen de los
 // productos listados en siteConfig.hero.featuredProductSlugs — cambia esa
 // lista para destacar otros productos, no hace falta tocar este archivo.
 export default async function Hero() {
-  const wa = `https://wa.me/${siteConfig.contact.whatsappNumber}?text=${encodeURIComponent('Hola, tengo una pregunta sobre sus productos.')}`;
-
   const supabase = createClient();
+  const settings = await getSiteSettings(supabase);
+  const wa = buildWhatsAppUrl(settings.whatsappNumber, settings.whatsappMessage);
+
   const { data: featured } = await supabase
     .from('products')
     .select('*, variants:product_variants(*)')

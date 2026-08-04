@@ -16,10 +16,14 @@ export default function SiteChrome({
   children,
   diluentProduct,
   recommendedPool,
+  whatsappNumber,
+  whatsappMessage,
 }: {
   children: React.ReactNode;
   diluentProduct: Product | null;
   recommendedPool: Product[];
+  whatsappNumber: string;
+  whatsappMessage: string;
 }) {
   const pathname = usePathname();
   const isAdmin = pathname?.startsWith('/admin');
@@ -36,7 +40,7 @@ export default function SiteChrome({
       <TopBar />
       <Header />
       <main>{children}</main>
-      <Footer />
+      <Footer whatsappNumber={whatsappNumber} whatsappMessage={whatsappMessage} />
     </>
   );
 }
