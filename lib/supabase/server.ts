@@ -1,4 +1,5 @@
 import { createServerClient } from '@supabase/ssr';
+import { createClient as createSupabaseJsClient } from '@supabase/supabase-js';
 import { cookies } from 'next/headers';
 
 // Cliente de Supabase para Server Components y Route Handlers.
@@ -33,20 +34,28 @@ export function createClient() {
   );
 }
 
+// IMPORTANTE — encontrado depurando en vivo: NO uses createServerClient()
+// (de @supabase/ssr) aquí, aunque parezca conveniente para reusar el mismo
+// patrón de cookies. createServerClient administra una sesión de auth
+// basada en cookies, y si el navegador que hace la petición ya tiene una
+// sesión iniciada (ej. el cliente logueado probando el checkout), usa el
+// token de ESA sesión para el header Authorization en vez de la llave que le
+// pasamos — así que aunque le des la service_role key, las consultas se
+// siguen evaluando con RLS como el usuario logueado, no como service_role.
+// Esto causaba "new row violates row-level security policy" al crear
+// pedidos si el cliente tenía sesión iniciada.
+//
+// Por eso este cliente usa el SDK plano de supabase-js, sin cookies ni
+// manejo de sesión — así siempre se autentica con la service_role key,
+// sin importar si quien hace la petición tiene sesión iniciada o no.
 export function createServiceRoleClient() {
-  const cookieStore = cookies();
-  return createServerClient(
+  return createSupabaseJsClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.SUPABASE_SERVICE_ROLE_KEY!,
     {
-      cookies: {
-        getAll() {
-          return cookieStore.getAll();
-        },
-        setAll() {
-          // El cliente de service role nunca necesita escribir cookies de
-          // sesión — ignora cualquier intento.
-        },
+      auth: {
+        autoRefreshToken: false,
+        persistSession: false,
       },
     }
   );
