@@ -11,6 +11,8 @@ import SectionHeader from '@/components/SectionHeader';
 import CardCapture from '@/components/checkout/CardCapture';
 import { MX_STATES, findMxStateByName } from '@/lib/mx-states';
 import { createClient } from '@/lib/supabase/client';
+import { checkPhone, maxDigitsForDialCode } from '@/lib/phone-validation';
+import SavedAddresses, { type SavedAddress } from '@/components/checkout/SavedAddresses';
 
 type CpLookupStatus = 'idle' | 'loading' | 'found' | 'not-found';
 
@@ -18,6 +20,7 @@ export default function CheckoutPage() {
   const {
     items, totalMxn, discountMxn, finalTotalMxn, clear,
     couponInput, setCouponInput, appliedCoupon, couponMsg, applyCoupon,
+    setQty, removeItem,
   } = useCart();
   const router = useRouter();
 
@@ -39,6 +42,12 @@ export default function CheckoutPage() {
   const [cpStatus, setCpStatus] = useState<CpLookupStatus>('idle');
   const cpLookupSeq = useRef(0);
 
+  const [phoneError, setPhoneError] = useState<string | null>(null);
+  const [phoneTouched, setPhoneTouched] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [saveAddress, setSaveAddress] = useState(true);
+  const [addressLabel, setAddressLabel] = useState('Casa');
+
   const [agree, setAgree] = useState(false);
   const [cardToken, setCardToken] = useState<string | null>(null);
   const [paymentConfigured, setPaymentConfigured] = useState(true);
@@ -55,6 +64,7 @@ export default function CheckoutPage() {
     const supabase = createClient();
     supabase.auth.getUser().then(async ({ data: { user } }) => {
       if (!user) return;
+      setIsLoggedIn(true);
 
       if (user.email) setEmail((prev) => prev || user.email!);
       const fullNameMeta = (user.user_metadata as any)?.full_name as string | undefined;
@@ -121,6 +131,15 @@ export default function CheckoutPage() {
   async function submit(e: React.FormEvent) {
     e.preventDefault();
     setErrorMsg(null);
+
+    const phoneResult = checkPhone(phone, phoneCountry);
+    if (!phoneResult.valid) {
+      setPhoneTouched(true);
+      setPhoneError(phoneResult.error);
+      setErrorMsg('Revisa tu número de teléfono antes de continuar.');
+      return;
+    }
+
     if (!agree) {
       setErrorMsg('Debes confirmar que eres mayor de edad y que entiendes el uso de investigación para continuar.');
       return;
@@ -152,6 +171,32 @@ export default function CheckoutPage() {
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || 'Error al procesar el pedido.');
+
+      // Guarda la dirección para la próxima compra — solo si el cliente
+      // tiene cuenta y dejó la casilla marcada. Si falla, no interrumpe el
+      // pedido (ya se cobró y se creó bien), solo no queda guardada.
+      if (isLoggedIn && saveAddress) {
+        try {
+          const supabase = createClient();
+          const { data: { user } } = await supabase.auth.getUser();
+          if (user) {
+            await supabase.from('customer_addresses').insert({
+              user_id: user.id,
+              label: addressLabel || 'Casa',
+              full_name: fullName,
+              phone: phone.replace(/\D/g, ''),
+              street: customer.street,
+              city,
+              state,
+              postal_code: postalCode,
+              is_default: true,
+            });
+          }
+        } catch (saveErr) {
+          console.error('No se pudo guardar la dirección para la próxima vez', saveErr);
+        }
+      }
+
       clear();
       router.push(data.payment.redirectUrl || `/checkout/success?order=${data.orderNumber}`);
     } catch (err: any) {
@@ -207,7 +252,15 @@ export default function CheckoutPage() {
               <div className="flex gap-2">
                 <select
                   value={phoneCountry}
-                  onChange={(e) => setPhoneCountry(e.target.value)}
+                  onChange={(e) => {
+                    const nextCountry = e.target.value;
+                    setPhoneCountry(nextCountry);
+                    const max = maxDigitsForDialCode(nextCountry);
+                    const trimmed = phone.slice(0, max);
+                    setPhone(trimmed);
+                    const result = checkPhone(trimmed, nextCountry);
+                    setPhoneError(result.valid ? null : result.error);
+                  }}
                   className="rounded-theme border border-border px-2 py-3 text-sm"
                 >
                   <option value="52">🇲🇽 +52</option>
@@ -216,13 +269,29 @@ export default function CheckoutPage() {
                 </select>
                 <input
                   required
-                  className={inputClass}
+                  inputMode="numeric"
+                  className={`${inputClass} ${phoneTouched && phoneError ? 'border-danger' : ''}`}
                   value={phone}
-                  onChange={(e) => setPhone(e.target.value)}
+                  onChange={(e) => {
+                    // Nunca deja escribir más dígitos de los que el país
+                    // permite — así el cliente no puede meter un número mal
+                    // por accidente.
+                    const digits = e.target.value.replace(/\D/g, '');
+                    const max = maxDigitsForDialCode(phoneCountry);
+                    const trimmed = digits.slice(0, max);
+                    setPhone(trimmed);
+                    const result = checkPhone(trimmed, phoneCountry);
+                    setPhoneError(result.valid ? null : result.error);
+                  }}
+                  onBlur={() => setPhoneTouched(true)}
                   placeholder="10 dígitos"
                 />
               </div>
-              <p className="mt-1 text-[11px] text-muted">Solo para rastreo por WhatsApp.</p>
+              {phoneTouched && phoneError ? (
+                <p className="mt-1 text-[11px] text-danger">{phoneError}</p>
+              ) : (
+                <p className="mt-1 text-[11px] text-muted">Solo para rastreo por WhatsApp.</p>
+              )}
             </div>
           </section>
 
@@ -230,6 +299,23 @@ export default function CheckoutPage() {
           <section className="space-y-3 rounded-theme border border-border p-5">
             <h2 className="text-base font-semibold text-ink">2. Dirección de envío</h2>
             <p className="text-xs text-muted">Entrega a todo México · 1-4 días hábiles según zona.</p>
+
+            {isLoggedIn && (
+              <SavedAddresses
+                onSelect={(addr: SavedAddress) => {
+                  setPostalCode(addr.postal_code || '');
+                  setCity(addr.city || '');
+                  const matched = findMxStateByName(addr.state);
+                  setState(matched?.code || addr.state || '');
+                  // `street` guardado ya incluye la colonia pegada con coma —
+                  // lo dejamos tal cual en el campo Calle, el cliente puede
+                  // ajustarlo si hace falta.
+                  setStreet(addr.street || '');
+                  setColonia('');
+                  if (addr.phone) setPhone((prev) => prev || addr.phone!.replace(/\D/g, ''));
+                }}
+              />
+            )}
 
             <div>
               <label className={labelClass}>Código postal</label>
@@ -289,6 +375,20 @@ export default function CheckoutPage() {
               <label className={labelClass}>Referencias para el repartidor (opcional)</label>
               <input className={inputClass} value={references} onChange={(e) => setReferences(e.target.value)} placeholder="Ej: portón negro, junto a farmacia, timbre 2B" />
             </div>
+
+            {isLoggedIn && (
+              <label className="flex items-center gap-2 text-xs text-muted">
+                <input type="checkbox" checked={saveAddress} onChange={(e) => setSaveAddress(e.target.checked)} />
+                Guardar esta dirección como
+                <input
+                  value={addressLabel}
+                  onChange={(e) => setAddressLabel(e.target.value)}
+                  disabled={!saveAddress}
+                  className="w-24 rounded-theme border border-border px-2 py-1 text-xs disabled:opacity-50"
+                />
+                para la próxima compra
+              </label>
+            )}
           </section>
 
           {/* 3. Método de pago */}
@@ -356,7 +456,32 @@ export default function CheckoutPage() {
                   <div className="flex-1">
                     <p className="text-xs font-medium text-ink">{item.product.name}</p>
                     {item.variant && <p className="text-[11px] text-muted">{item.variant.label}</p>}
-                    <p className="text-[11px] text-muted">Cant. {item.qty}</p>
+                    <div className="mt-1 flex items-center gap-2">
+                      <button
+                        type="button"
+                        onClick={() => setQty(item.key, item.qty - 1)}
+                        aria-label="Quitar uno"
+                        className="flex h-5 w-5 items-center justify-center rounded border border-border text-xs leading-none"
+                      >
+                        −
+                      </button>
+                      <span className="min-w-[14px] text-center text-[11px] text-muted">{item.qty}</span>
+                      <button
+                        type="button"
+                        onClick={() => setQty(item.key, item.qty + 1)}
+                        aria-label="Agregar uno"
+                        className="flex h-5 w-5 items-center justify-center rounded border border-border text-xs leading-none"
+                      >
+                        +
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => removeItem(item.key)}
+                        className="ml-1 text-[11px] text-muted underline"
+                      >
+                        Quitar
+                      </button>
+                    </div>
                   </div>
                   <span className="font-price text-xs text-ink">${formatMxn(itemUnitPrice(item) * item.qty)}</span>
                 </div>
