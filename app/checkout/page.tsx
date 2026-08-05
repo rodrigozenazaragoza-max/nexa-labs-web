@@ -1,13 +1,16 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
+import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { useCart } from '@/lib/cart-context';
+import { itemImage, itemUnitPrice } from '@/lib/cart-utils';
 import { siteConfig } from '@/lib/site-config';
 import { formatMxn } from '@/lib/format';
 import SectionHeader from '@/components/SectionHeader';
 import CardCapture from '@/components/checkout/CardCapture';
 import { MX_STATES, findMxStateByName } from '@/lib/mx-states';
+import { createClient } from '@/lib/supabase/client';
 
 type CpLookupStatus = 'idle' | 'loading' | 'found' | 'not-found';
 
@@ -44,6 +47,43 @@ export default function CheckoutPage() {
 
   const fullName = `${firstName} ${lastName}`.trim();
 
+  // Si el cliente ya inició sesión, llena contacto y envío automáticamente
+  // con sus datos guardados (cuenta + dirección predeterminada) — así no
+  // tiene que volver a escribir todo cada vez que compra. Solo llena campos
+  // que sigan vacíos, para no pisar algo que el cliente ya haya escrito.
+  useEffect(() => {
+    const supabase = createClient();
+    supabase.auth.getUser().then(async ({ data: { user } }) => {
+      if (!user) return;
+
+      if (user.email) setEmail((prev) => prev || user.email!);
+      const fullNameMeta = (user.user_metadata as any)?.full_name as string | undefined;
+      if (fullNameMeta) {
+        const [fn, ...rest] = fullNameMeta.trim().split(' ');
+        setFirstName((prev) => prev || fn || '');
+        setLastName((prev) => prev || rest.join(' '));
+      }
+
+      const { data: address } = await supabase
+        .from('customer_addresses')
+        .select('*')
+        .order('is_default', { ascending: false })
+        .order('created_at', { ascending: false })
+        .limit(1)
+        .maybeSingle();
+
+      if (!address) return;
+      if (address.phone) setPhone((prev) => prev || address.phone.replace(/\D/g, ''));
+      if (address.postal_code) setPostalCode((prev) => prev || address.postal_code);
+      if (address.city) setCity((prev) => prev || address.city);
+      if (address.state) {
+        const matched = findMxStateByName(address.state);
+        setState((prev) => prev || matched?.code || '');
+      }
+      if (address.street) setStreet((prev) => prev || address.street);
+    });
+  }, []);
+
   // Busca el código postal en cuanto el cliente termina de escribir 5
   // dígitos, y llena Estado/Ciudad automáticamente (Colonia queda editable,
   // se sugiere pero no se impone porque una CP puede tener varias colonias).
@@ -68,7 +108,7 @@ export default function CheckoutPage() {
           setCity((prev) => prev || place['place name']);
           setColonia((prev) => prev || place['place name']);
           const matched = findMxStateByName(place.state);
-          if (matched) setState(matched.code);
+          if (matched) setState((prev) => prev || matched.code);
           setCpStatus('found');
         })
         .catch(() => {
@@ -299,10 +339,32 @@ export default function CheckoutPage() {
           </section>
         </form>
 
-        {/* Resumen del pedido */}
+        {/* Resumen del pedido — se muestra la lista real de productos (no
+            solo el conteo) para que el cliente vea qué está pagando sin
+            tener que abrir el carrito aparte. */}
         <aside className="h-fit space-y-3 rounded-theme border border-border p-5 lg:sticky lg:top-24">
-          <p className="text-sm font-semibold text-ink">{items.reduce((s, i) => s + i.qty, 0)} productos</p>
-          <div className="flex gap-2">
+          <p className="text-sm font-semibold text-ink">Tu pedido ({items.reduce((s, i) => s + i.qty, 0)})</p>
+
+          <div className="max-h-80 space-y-3 overflow-y-auto pr-1">
+            {items.map((item) => {
+              const image = itemImage(item);
+              return (
+                <div key={item.key} className="flex items-center gap-3">
+                  <div className="relative h-12 w-12 shrink-0 overflow-hidden rounded-lg bg-primary-light">
+                    {image && <Image src={image} alt={item.product.name} fill className="object-cover" sizes="48px" />}
+                  </div>
+                  <div className="flex-1">
+                    <p className="text-xs font-medium text-ink">{item.product.name}</p>
+                    {item.variant && <p className="text-[11px] text-muted">{item.variant.label}</p>}
+                    <p className="text-[11px] text-muted">Cant. {item.qty}</p>
+                  </div>
+                  <span className="font-price text-xs text-ink">${formatMxn(itemUnitPrice(item) * item.qty)}</span>
+                </div>
+              );
+            })}
+          </div>
+
+          <div className="flex gap-2 border-t border-border pt-3">
             <input
               placeholder="Código de descuento"
               className="w-full rounded-theme border border-border px-3 py-2 text-xs"
