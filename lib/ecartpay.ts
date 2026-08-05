@@ -157,6 +157,24 @@ export async function tokenizeEcartCard(cardId: string): Promise<string> {
   return data.token;
 }
 
+export type EcartSavedCard = {
+  id: string;
+  brand: string;
+  name: string;
+  last: string;
+  default?: boolean;
+};
+
+// Tarjetas ya guardadas del cliente en Ecart Pay (de compras anteriores).
+// Se usa para mostrarlas directas en el checkout (como "Mastercard •••• 5342
+// — Default") en vez de mandar siempre al cliente a la ventana emergente a
+// agregar una tarjeta nueva. Al elegir una, se tokeniza directo con
+// tokenizeEcartCard(card.id) — sin abrir ningún popup.
+export async function listEcartCustomerCards(customerId: string): Promise<EcartSavedCard[]> {
+  const data = await ecartFetch(`/api/customers/${customerId}/cards`);
+  return Array.isArray(data) ? data : [];
+}
+
 export type EcartShippingAddress = {
   address1: string;
   city: string;

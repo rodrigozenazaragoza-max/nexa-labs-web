@@ -16,9 +16,29 @@ type Props = {
   onConfiguredChange?: (configured: boolean) => void;
 };
 
+type SavedCard = {
+  id: string;
+  brand: string;
+  name: string;
+  last: string;
+  default?: boolean;
+};
+
+const BRAND_ICON: Record<string, string> = {
+  visa: '💳',
+  mastercard: '💳',
+  amex: '💳',
+};
+
 // Botón que abre el formulario oficial de Ecart Pay (en un popup) para
-// capturar los datos de la tarjeta. Los datos de la tarjeta nunca tocan
-// nuestro servidor — solo recibimos un token seguro al final.
+// capturar los datos de una tarjeta NUEVA. Los datos de la tarjeta nunca
+// tocan nuestro servidor — solo recibimos un token seguro al final.
+//
+// Si el cliente ya compró antes, sus tarjetas guardadas en Ecart Pay se
+// muestran directo aquí (sin popup) — elegir una las tokeniza al instante
+// vía tokenizeEcartCard(id). Esto evita mandar a un cliente que regresa por
+// la ventana emergente cada vez, igual que el checkout de referencia que
+// mostraba "Mastercard •••• 5342 — Default" ya seleccionada.
 //
 // Detalle importante #1 (popups): los navegadores solo permiten abrir una
 // ventana emergente (window.open) de forma SÍNCRONA dentro del mismo clic del
@@ -42,7 +62,10 @@ export default function CardCapture({ name, email, phone, onTokenChange, onConfi
   const [status, setStatus] = useState<'idle' | 'loading' | 'error'>('idle');
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [cardAdded, setCardAdded] = useState(false);
+  const [selectedCardId, setSelectedCardId] = useState<string | null>(null);
   const [session, setSession] = useState<string | null>(null);
+  const [customerId, setCustomerId] = useState<string | null>(null);
+  const [savedCards, setSavedCards] = useState<SavedCard[] | null>(null);
   const listenerRegistered = useRef(false);
   const fetchingSession = useRef(false);
   const cardInstanceRef = useRef<any>(null);
@@ -76,6 +99,16 @@ export default function CardCapture({ name, email, phone, onTokenChange, onConfi
     document.body.appendChild(script);
   }, [sdkUrl, configured]);
 
+  // En cuanto sabemos quién es el cliente en Ecart Pay, revisa si ya tiene
+  // tarjetas guardadas de compras anteriores.
+  useEffect(() => {
+    if (!customerId) return;
+    fetch(`/api/ecartpay/cards?customerId=${encodeURIComponent(customerId)}`)
+      .then((r) => r.json())
+      .then((d) => setSavedCards(Array.isArray(d.cards) ? d.cards : []))
+      .catch(() => setSavedCards([]));
+  }, [customerId]);
+
   // Escucha directamente los mensajes que la ventana emergente de Ecart Pay
   // le manda a esta pestaña — ver nota arriba sobre por qué no confiamos en
   // window.Pay.Cards.on(). Se registra una sola vez, en cuanto conocemos el
@@ -99,7 +132,29 @@ export default function CardCapture({ name, email, phone, onTokenChange, onConfi
       const cardId = payload.data?.id || payload.data?.card_id;
       if (!cardId) return;
 
+      await selectCard(cardId);
+      // Cierra la ventana emergente automáticamente — el cliente ya no
+      // necesita verla, la tarjeta quedó guardada y lista para pagar.
+      try {
+        cardInstanceRef.current?.close?.();
+      } catch {
+        // si no se puede cerrar sola, no pasa nada — el cliente puede
+        // cerrarla manualmente con "Close window".
+      }
+    }
+
+    window.addEventListener('message', handleMessage);
+    return () => window.removeEventListener('message', handleMessage);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [sdkUrl]);
+
+  // Tokeniza una tarjeta (nueva o ya guardada) por su id y la deja lista
+  // para cobrar. Se usa tanto al elegir una tarjeta guardada directamente
+  // como al terminar de agregar una nueva en el popup.
+  const selectCard = useCallback(
+    async (cardId: string) => {
       setStatus('loading');
+      setErrorMsg(null);
       try {
         const tokenRes = await fetch('/api/ecartpay/tokenize', {
           method: 'POST',
@@ -109,27 +164,17 @@ export default function CardCapture({ name, email, phone, onTokenChange, onConfi
         const tokenData = await tokenRes.json();
         if (!tokenRes.ok) throw new Error(tokenData.error || 'No se pudo procesar la tarjeta.');
         setCardAdded(true);
+        setSelectedCardId(cardId);
         setStatus('idle');
-        setErrorMsg(null);
         onTokenChange(tokenData.token);
-        // Cierra la ventana emergente automáticamente — el cliente ya no
-        // necesita verla, la tarjeta quedó guardada y lista para pagar.
-        try {
-          cardInstanceRef.current?.close?.();
-        } catch {
-          // si no se puede cerrar sola, no pasa nada — el cliente puede
-          // cerrarla manualmente con "Close window".
-        }
       } catch (err: any) {
         setErrorMsg(err.message);
         setStatus('error');
         onTokenChange(null);
       }
-    }
-
-    window.addEventListener('message', handleMessage);
-    return () => window.removeEventListener('message', handleMessage);
-  }, [sdkUrl, onTokenChange]);
+    },
+    [onTokenChange]
+  );
 
   const requestSession = useCallback(async (): Promise<string | null> => {
     try {
@@ -144,6 +189,7 @@ export default function CardCapture({ name, email, phone, onTokenChange, onConfi
         return null;
       }
       setSession(data.session);
+      if (data.customerId) setCustomerId(data.customerId);
       setErrorMsg(null);
       return data.session as string;
     } catch (err) {
@@ -221,21 +267,54 @@ export default function CardCapture({ name, email, phone, onTokenChange, onConfi
     );
   }
 
+  const hasSavedCards = Boolean(savedCards && savedCards.length > 0);
+
   return (
     <div className="space-y-2">
+      {hasSavedCards && (
+        <div className="space-y-2">
+          {savedCards!.map((card) => {
+            const isSelected = cardAdded && selectedCardId === card.id;
+            return (
+              <button
+                key={card.id}
+                type="button"
+                onClick={() => selectCard(card.id)}
+                disabled={status === 'loading'}
+                className={`flex w-full items-center justify-between rounded-theme border px-4 py-3 text-left text-sm disabled:opacity-50 ${
+                  isSelected ? 'border-primary bg-primary/10' : 'border-border'
+                }`}
+              >
+                <span className="flex items-center gap-2">
+                  <span>{BRAND_ICON[card.brand?.toLowerCase()] ?? '💳'}</span>
+                  <span className="font-semibold text-ink">
+                    {card.brand?.toUpperCase()} •••• {card.last}
+                  </span>
+                  <span className="text-muted">{card.name}</span>
+                  {card.default && <span className="text-xs text-primary">Predeterminada</span>}
+                </span>
+                {isSelected && <span className="text-primary">✓</span>}
+              </button>
+            );
+          })}
+        </div>
+      )}
+
       <button
         type="button"
         onClick={openCardForm}
         disabled={!scriptLoaded || status === 'loading'}
         className={`w-full rounded-theme border px-4 py-3 text-sm font-semibold disabled:opacity-50 ${
-          cardAdded ? 'border-primary bg-primary/10 text-primary' : 'border-primary text-primary'
+          cardAdded && !hasSavedCards ? 'border-primary bg-primary/10 text-primary' : 'border-primary text-primary'
         }`}
       >
-        {cardAdded
-          ? 'Tarjeta agregada ✓ — cambiar tarjeta'
-          : status === 'loading'
-            ? 'Procesando tarjeta...'
-            : '💳 Agregar tarjeta'}
+        {status === 'loading'
+          ? 'Procesando tarjeta...'
+          : hasSavedCards
+            ? '➕ Agregar otra tarjeta'
+            : cardAdded
+              ? 'Tarjeta agregada ✓ — cambiar tarjeta'
+              : '💳 Agregar tarjeta'}
       </button>
       {errorMsg && <p className="text-xs text-danger">{errorMsg}</p>}
       {!scriptLoaded && <p className="text-xs text-muted">Cargando formulario de pago seguro...</p>}
