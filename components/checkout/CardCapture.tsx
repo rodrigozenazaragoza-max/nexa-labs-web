@@ -26,6 +26,9 @@ type Props = {
 // antes de abrir la ventana, el navegador la bloquea. Por eso precargamos la
 // sesión en segundo plano en cuanto el cliente termina de llenar sus datos,
 // para que el clic en "Agregar tarjeta" pueda abrir la ventana al instante.
+// Si esa precarga falla por cualquier razón, el clic hace un intento
+// inmediato como respaldo (puede que el navegador bloquee la ventana en ese
+// caso, pero es mejor que quedarse atorado sin poder avanzar).
 export default function CardCapture({ name, email, phone, onTokenChange, onConfiguredChange }: Props) {
   const [sdkUrl, setSdkUrl] = useState<string | null>(null);
   const [configured, setConfigured] = useState<boolean | null>(null);
@@ -66,6 +69,27 @@ export default function CardCapture({ name, email, phone, onTokenChange, onConfi
     document.body.appendChild(script);
   }, [sdkUrl, configured]);
 
+  const requestSession = useCallback(async (): Promise<string | null> => {
+    try {
+      const res = await fetch('/api/ecartpay/session', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name, email, phone }),
+      });
+      const data = await res.json();
+      if (!res.ok || !data.session) {
+        setErrorMsg(data.error || 'No se pudo preparar el formulario de pago. Verifica tus datos e intenta de nuevo.');
+        return null;
+      }
+      setSession(data.session);
+      setErrorMsg(null);
+      return data.session as string;
+    } catch (err) {
+      setErrorMsg('No se pudo conectar con el formulario de pago. Revisa tu conexión e intenta de nuevo.');
+      return null;
+    }
+  }, [name, email, phone]);
+
   // Precarga la sesión de pago en cuanto tengamos nombre/correo/teléfono
   // válidos, para que el botón pueda abrir la ventana segura al instante.
   useEffect(() => {
@@ -75,25 +99,40 @@ export default function CardCapture({ name, email, phone, onTokenChange, onConfi
 
     fetchingSession.current = true;
     const timer = setTimeout(() => {
-      fetch('/api/ecartpay/session', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name, email, phone }),
-      })
-        .then((r) => r.json().then((d) => ({ ok: r.ok, d })))
-        .then(({ ok, d }) => {
-          if (ok && d.session) setSession(d.session);
-          fetchingSession.current = false;
-        })
-        .catch(() => {
-          fetchingSession.current = false;
-        });
+      requestSession().finally(() => {
+        fetchingSession.current = false;
+      });
     }, 600); // pequeño debounce para no disparar en cada tecla
 
     return () => clearTimeout(timer);
-  }, [name, email, phone, configured, session]);
+  }, [name, email, phone, configured, session, requestSession]);
 
-  const openCardForm = useCallback(() => {
+  const registerSaveListener = useCallback(() => {
+    if (listenerRegistered.current) return;
+    listenerRegistered.current = true;
+    window.Pay.Cards.on('cards:save', async (event: any) => {
+      try {
+        const cardId = event?.id || event?.card_id || event?.data?.id || event?.data?.card_id;
+        if (!cardId) throw new Error('No se recibió la tarjeta correctamente. Intenta de nuevo.');
+        const tokenRes = await fetch('/api/ecartpay/tokenize', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ cardId }),
+        });
+        const tokenData = await tokenRes.json();
+        if (!tokenRes.ok) throw new Error(tokenData.error || 'No se pudo procesar la tarjeta.');
+        setCardAdded(true);
+        setStatus('idle');
+        onTokenChange(tokenData.token);
+      } catch (err: any) {
+        setErrorMsg(err.message);
+        setStatus('error');
+        onTokenChange(null);
+      }
+    });
+  }, [onTokenChange]);
+
+  const openCardForm = useCallback(async () => {
     if (!name || !email || !phone) {
       setErrorMsg('Completa tu nombre, correo y teléfono antes de agregar la tarjeta.');
       return;
@@ -102,49 +141,28 @@ export default function CardCapture({ name, email, phone, onTokenChange, onConfi
       setErrorMsg('El formulario de pago sigue cargando, espera un segundo e intenta de nuevo.');
       return;
     }
-    if (!session) {
-      // No hubo tiempo de precargar la sesión (datos recién llenados) —
-      // avisamos al cliente que intente de nuevo en un segundo, en vez de
-      // arriesgarnos a que el navegador bloquee el popup.
-      setErrorMsg('Un momento, preparando el formulario de pago... vuelve a hacer clic en unos segundos.');
-      return;
-    }
 
     setErrorMsg(null);
     setStatus('loading');
 
-    // El listener de eventos vive en Pay.Cards (el módulo), no en la
-    // instancia que regresa .render() — esta última solo expone
-    // session()/start()/close(). Lo registramos solo una vez: si el
-    // cliente hace clic en "Agregar tarjeta" varias veces, no queremos
-    // apilar listeners duplicados que dispararían el token repetido.
-    if (!listenerRegistered.current) {
-      listenerRegistered.current = true;
-      window.Pay.Cards.on('cards:save', async (event: any) => {
-        try {
-          const cardId = event?.id || event?.card_id || event?.data?.id || event?.data?.card_id;
-          if (!cardId) throw new Error('No se recibió la tarjeta correctamente. Intenta de nuevo.');
-          const tokenRes = await fetch('/api/ecartpay/tokenize', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ cardId }),
-          });
-          const tokenData = await tokenRes.json();
-          if (!tokenRes.ok) throw new Error(tokenData.error || 'No se pudo procesar la tarjeta.');
-          setCardAdded(true);
-          setStatus('idle');
-          onTokenChange(tokenData.token);
-        } catch (err: any) {
-          setErrorMsg(err.message);
-          setStatus('error');
-          onTokenChange(null);
-        }
-      });
+    let activeSession = session;
+    if (!activeSession) {
+      // La precarga en segundo plano no terminó a tiempo (o falló) — lo
+      // intentamos ahora mismo como respaldo, aunque exista el riesgo de que
+      // el navegador bloquee la ventana por no ser 100% síncrono con el clic.
+      activeSession = await requestSession();
     }
+
+    if (!activeSession) {
+      setStatus('error');
+      return; // requestSession ya dejó el mensaje de error específico
+    }
+
+    registerSaveListener();
 
     try {
       const ecartpay = window.Pay.Cards.render({});
-      ecartpay.session(session);
+      ecartpay.session(activeSession);
       ecartpay.start();
       setStatus('idle');
     } catch (sdkErr) {
@@ -153,7 +171,7 @@ export default function CardCapture({ name, email, phone, onTokenChange, onConfi
         'No se pudo abrir la ventana segura de pago. Verifica que tu navegador no esté bloqueando ventanas emergentes para este sitio, y recarga la página si el problema continúa.'
       );
     }
-  }, [name, email, phone, session, scriptLoaded, onTokenChange]);
+  }, [name, email, phone, session, scriptLoaded, requestSession, registerSaveListener]);
 
   if (configured === null) {
     return <p className="text-xs text-muted">Cargando formulario de pago...</p>;
