@@ -1,48 +1,49 @@
-// Abstracción de pasarela de pago.
+// Abstracción de pasarela de pago — procesador: Ecart Pay.
 //
-// Por qué existe este archivo: Stripe, PayPal y Shopify Payments no aceptan
-// la categoría "research peptides" — necesitas un gateway de alto riesgo
-// (ej. Monelo, que ya usa un competidor directo: exomapeptides.mx).
-// Mantener esta lógica en un solo lugar significa que puedes cambiar de
-// proveedor sin tocar el checkout ni el resto de la app.
+// Ver lib/ecartpay.ts para el detalle de la integración (autenticación,
+// tokenización de tarjeta, creación de orden) y docs.ecartpay.com para la
+// referencia completa de la API.
+//
+// Modo mock: si ECARTPAY_PUBLIC_KEY / ECARTPAY_SECRET_KEY no están
+// configuradas en el entorno, el checkout sigue funcionando pero sin cobrar
+// de verdad — útil para probar el flujo completo antes de tener llaves.
+
+import { createEcartOrder, isEcartPayConfigured, type CreateEcartOrderInput } from './ecartpay';
 
 export type PaymentIntentResult = {
-  provider: 'monelo' | 'mock';
+  provider: 'ecartpay' | 'mock';
   redirectUrl?: string;
-  clientSecret?: string;
+  status?: string;
+  ecartpayOrderId?: string;
 };
 
-export async function createPaymentIntent(
+export async function chargeWithEcartPay(
   orderId: string,
-  amountMxn: number
+  orderNumber: string,
+  input: Omit<CreateEcartOrderInput, 'referenceId' | 'notifyUrl'>
 ): Promise<PaymentIntentResult> {
-  const apiKey = process.env.MONELO_SECRET_KEY;
-
-  if (!apiKey) {
-    // Modo mock: no hay gateway configurado todavía.
-    // Útil para probar el flujo de checkout end-to-end antes de tener
-    // una cuenta aprobada con un procesador de pagos.
-    return {
-      provider: 'mock',
-      redirectUrl: `/checkout/success?order=${orderId}&mock=1`,
-    };
+  if (!isEcartPayConfigured()) {
+    // Sin credenciales todavía: dejamos pasar el pedido en modo prueba para
+    // no bloquear el desarrollo del resto del sitio.
+    return { provider: 'mock', redirectUrl: `/checkout/success?order=${orderNumber}&mock=1` };
   }
 
-  // TODO: implementar la llamada real a la API de Monelo una vez que tengas
-  // credenciales y su documentación de /desarrolladores. Estructura típica:
-  //
-  // const res = await fetch('https://api.monelo.mx/v1/payment-intents', {
-  //   method: 'POST',
-  //   headers: {
-  //     Authorization: `Bearer ${apiKey}`,
-  //     'Content-Type': 'application/json',
-  //   },
-  //   body: JSON.stringify({ amount: amountMxn, currency: 'MXN', reference: orderId }),
-  // });
-  // const data = await res.json();
-  // return { provider: 'monelo', redirectUrl: data.checkout_url };
+  if (!input.cardToken) {
+    throw new Error('Falta el token de la tarjeta — agrega una tarjeta antes de confirmar el pedido.');
+  }
 
-  throw new Error(
-    'Falta implementar la integración real de Monelo — revisa README.md sección "Pagos".'
-  );
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://nexa-labs-peptides.netlify.app';
+
+  const result = await createEcartOrder({
+    ...input,
+    referenceId: orderId,
+    notifyUrl: `${siteUrl}/api/webhook`,
+  });
+
+  return {
+    provider: 'ecartpay',
+    status: result.status,
+    ecartpayOrderId: result.id,
+    redirectUrl: `/checkout/success?order=${orderNumber}`,
+  };
 }

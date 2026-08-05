@@ -6,6 +6,7 @@ import { useCart } from '@/lib/cart-context';
 import { siteConfig } from '@/lib/site-config';
 import { formatMxn } from '@/lib/format';
 import SectionHeader from '@/components/SectionHeader';
+import CardCapture from '@/components/checkout/CardCapture';
 
 export default function CheckoutPage() {
   const {
@@ -14,9 +15,12 @@ export default function CheckoutPage() {
   } = useCart();
   const router = useRouter();
   const [form, setForm] = useState({
-    name: '', email: '', phone: '', address: '',
+    name: '', email: '', phone: '',
+    street: '', city: '', state: '', postalCode: '',
     confirmsResearchUse: false, confirmsAge: false,
   });
+  const [cardToken, setCardToken] = useState<string | null>(null);
+  const [paymentConfigured, setPaymentConfigured] = useState(true);
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
@@ -27,12 +31,22 @@ export default function CheckoutPage() {
       setErrorMsg('Debes confirmar el uso de investigación y la mayoría de edad para continuar.');
       return;
     }
+    if (paymentConfigured && !cardToken) {
+      setErrorMsg('Agrega una tarjeta para poder confirmar el pedido.');
+      return;
+    }
     setLoading(true);
     try {
+      const address = `${form.street}, ${form.city}, ${form.state}, CP ${form.postalCode}`;
       const res = await fetch('/api/checkout', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ items, customer: form, couponCode: appliedCoupon }),
+        body: JSON.stringify({
+          items,
+          customer: { ...form, address },
+          couponCode: appliedCoupon,
+          cardToken,
+        }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || 'Error al procesar el pedido.');
@@ -60,8 +74,17 @@ export default function CheckoutPage() {
           value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} />
         <input required placeholder="Teléfono" className="w-full rounded-theme border border-border px-4 py-3"
           value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} />
-        <textarea required placeholder="Dirección de envío" className="w-full rounded-theme border border-border px-4 py-3"
-          value={form.address} onChange={(e) => setForm({ ...form, address: e.target.value })} />
+
+        <input required placeholder="Calle y número" className="w-full rounded-theme border border-border px-4 py-3"
+          value={form.street} onChange={(e) => setForm({ ...form, street: e.target.value })} />
+        <div className="grid grid-cols-2 gap-3">
+          <input required placeholder="Ciudad" className="w-full rounded-theme border border-border px-4 py-3"
+            value={form.city} onChange={(e) => setForm({ ...form, city: e.target.value })} />
+          <input required placeholder="Estado" className="w-full rounded-theme border border-border px-4 py-3"
+            value={form.state} onChange={(e) => setForm({ ...form, state: e.target.value })} />
+        </div>
+        <input required placeholder="Código postal" className="w-full rounded-theme border border-border px-4 py-3"
+          value={form.postalCode} onChange={(e) => setForm({ ...form, postalCode: e.target.value })} />
 
         <div className="flex gap-2">
           <input
@@ -77,6 +100,17 @@ export default function CheckoutPage() {
         {couponMsg && (
           <p className={`text-xs ${appliedCoupon ? 'text-primary' : 'text-danger'}`}>{couponMsg}</p>
         )}
+
+        <div className="border-t border-border pt-4">
+          <p className="mb-2 text-sm font-semibold text-ink">Pago</p>
+          <CardCapture
+            name={form.name}
+            email={form.email}
+            phone={form.phone}
+            onTokenChange={setCardToken}
+            onConfiguredChange={setPaymentConfigured}
+          />
+        </div>
 
         <label className="flex items-start gap-2 text-sm text-muted">
           <input type="checkbox" className="mt-1" checked={form.confirmsResearchUse}

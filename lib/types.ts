@@ -43,6 +43,10 @@ export type CheckoutCustomer = {
   email: string;
   phone: string;
   address: string;
+  street: string;
+  city: string;
+  state: string;
+  postalCode: string;
   confirmsResearchUse: boolean;
   confirmsAge: boolean;
 };
