@@ -40,7 +40,9 @@ export default function Footer({ whatsappNumber, whatsappMessage }: { whatsappNu
       <div className="mx-auto max-w-7xl px-6 py-12">
         <div className="grid grid-cols-2 gap-8 sm:grid-cols-5">
           <div className="col-span-2 sm:col-span-1">
-            <Image src="/logo.png" alt={siteConfig.brand.name} width={424} height={144} className="h-10 w-auto brightness-0 invert" />
+            <div className="inline-block rounded-theme border border-primary/30 bg-white px-3 py-2">
+              <Image src="/logo.png" alt={siteConfig.brand.name} width={424} height={144} className="h-8 w-auto" />
+            </div>
             <p className="mt-3 max-w-[180px] text-xs leading-relaxed text-white/60">
               Péptidos de investigación (RUO) verificados por lote, para laboratorios en México.
             </p>

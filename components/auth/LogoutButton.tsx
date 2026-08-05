@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import { LogOut, Loader2 } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
 
-export default function LogoutButton() {
+export default function LogoutButton({ full }: { full?: boolean }) {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
 
@@ -15,6 +15,19 @@ export default function LogoutButton() {
     await supabase.auth.signOut();
     router.push('/');
     router.refresh();
+  }
+
+  if (full) {
+    return (
+      <button
+        onClick={handleLogout}
+        disabled={loading}
+        className="flex w-full items-center gap-2.5 rounded-theme px-3.5 py-2.5 text-sm font-semibold text-muted transition hover:bg-danger-bg hover:text-danger disabled:opacity-60"
+      >
+        {loading ? <Loader2 size={16} className="animate-spin" /> : <LogOut size={16} />}
+        Cerrar sesión
+      </button>
+    );
   }
 
   return (
