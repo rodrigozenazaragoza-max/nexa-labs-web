@@ -76,8 +76,10 @@ export default function CardCapture({ name, email, phone, onTokenChange, onConfi
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || 'No se pudo iniciar el formulario de pago.');
 
-      const ecartpay = window.Pay.Cards.render({});
-      ecartpay.on('cards:save', async (event: any) => {
+      // El listener de eventos vive en Pay.Cards (el módulo), no en la
+      // instancia que regresa .render() — esta última solo expone
+      // session()/start()/close().
+      window.Pay.Cards.on('cards:save', async (event: any) => {
         try {
           const cardId = event?.id || event?.card_id || event?.data?.id || event?.data?.card_id;
           if (!cardId) throw new Error('No se recibió la tarjeta correctamente. Intenta de nuevo.');
@@ -97,6 +99,7 @@ export default function CardCapture({ name, email, phone, onTokenChange, onConfi
           onTokenChange(null);
         }
       });
+      const ecartpay = window.Pay.Cards.render({});
       ecartpay.session(data.session);
       ecartpay.start();
       setStatus('idle');
