@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { createServiceRoleClient } from '@/lib/supabase/server';
+import { maybeSendOrderConfirmationEmail } from '@/lib/order-notifications';
 
 // Webhook de Ecart Pay: nos avisa cuando el estado de un pago cambia
 // (aprobado, rechazado, etc.). Ver docs.ecartpay.com/docs/webhooks-in-ecart-pay
@@ -57,6 +58,10 @@ export async function POST(req: Request) {
   if (error) {
     console.error(error);
     return NextResponse.json({ error: 'No se pudo actualizar la orden.' }, { status: 500 });
+  }
+
+  if (mappedStatus === 'paid') {
+    await maybeSendOrderConfirmationEmail(supabase, orderRow.id);
   }
 
   return NextResponse.json({ ok: true });

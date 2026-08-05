@@ -3,6 +3,7 @@ import { createServiceRoleClient } from '@/lib/supabase/server';
 import { chargeWithEcartPay } from '@/lib/payment';
 import { siteConfig } from '@/lib/site-config';
 import { itemUnitPrice } from '@/lib/cart-utils';
+import { maybeSendOrderConfirmationEmail } from '@/lib/order-notifications';
 import type { CartItem, CheckoutCustomer } from '@/lib/types';
 
 export async function POST(req: Request) {
@@ -120,6 +121,10 @@ export async function POST(req: Request) {
   }
   if (Object.keys(updates).length) {
     await supabase.from('orders').update(updates).eq('id', order.id);
+  }
+
+  if (updates.status === 'paid') {
+    await maybeSendOrderConfirmationEmail(supabase, order.id);
   }
 
   return NextResponse.json({ orderId: order.id, orderNumber: order.order_number, payment });
