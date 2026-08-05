@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { createEcartCustomer, createEcartCustomerSession, isEcartPayConfigured } from '@/lib/ecartpay';
+import { findOrCreateEcartCustomer, createEcartCustomerSession, isEcartPayConfigured } from '@/lib/ecartpay';
 
 // Crea un cliente + sesión en Ecart Pay para poder abrir el formulario de
 // captura de tarjeta desde el navegador. Se llama justo antes de mostrar el
@@ -16,7 +16,7 @@ export async function POST(req: Request) {
   try {
     const [firstName, ...rest] = (name || 'Cliente').trim().split(' ');
     const lastName = rest.join(' ') || '-';
-    const customerId = await createEcartCustomer({
+    const customerId = await findOrCreateEcartCustomer({
       first_name: firstName || 'Cliente',
       last_name: lastName,
       email,

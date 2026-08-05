@@ -98,6 +98,32 @@ export async function createEcartCustomer(customer: EcartCustomerInput): Promise
   return id;
 }
 
+// Ecart Pay no permite dos clientes con el mismo correo/teléfono — si un
+// cliente ya compró antes, hay que reutilizar su registro en vez de crear
+// uno nuevo (eso es lo que fallaba: "email, phone or user_id already
+// exists"). Buscamos primero por correo; si no existe, lo creamos.
+export async function findOrCreateEcartCustomer(customer: EcartCustomerInput): Promise<string> {
+  try {
+    const existing = await ecartFetch(`/api/customers?email=${encodeURIComponent(customer.email)}`);
+    const match = existing?.docs?.[0];
+    if (match?.id) return match.id;
+  } catch (err) {
+    // Si la búsqueda falla por cualquier razón, seguimos e intentamos crear.
+    console.error('Ecart Pay: no se pudo buscar cliente existente', err);
+  }
+  try {
+    return await createEcartCustomer(customer);
+  } catch (err: any) {
+    // Carrera: alguien más lo creó entre la búsqueda y el intento de crear.
+    if (String(err.message || '').toLowerCase().includes('already exists')) {
+      const retry = await ecartFetch(`/api/customers?email=${encodeURIComponent(customer.email)}`);
+      const match = retry?.docs?.[0];
+      if (match?.id) return match.id;
+    }
+    throw err;
+  }
+}
+
 export async function createEcartCustomerSession(customerId: string): Promise<string> {
   const data = await ecartFetch(`/api/customers/${customerId}/session`, { method: 'POST' });
   const session = data?.session ?? data?.id ?? data?.token;
