@@ -84,11 +84,17 @@ export async function POST(req: Request) {
       phone: customer.phone,
       currency: 'MXN',
       reference: `Pedido ${order.order_number}`,
-      items: items.map((i) => ({
-        name: i.product.name + (i.variant ? ` — ${i.variant.label}` : ''),
-        price: itemUnitPrice(i),
-        quantity: i.qty,
-      })),
+      // Ecart Pay rechaza líneas con price <= 0 ("items[0].price must be
+      // greater than 0") — filtramos artículos gratis/de regalo (ej. agua
+      // bacteriostática de cortesía) del cobro. Siguen guardados en
+      // order_items para el envío, solo no se le cobran al cliente.
+      items: items
+        .filter((i) => itemUnitPrice(i) > 0)
+        .map((i) => ({
+          name: i.product.name + (i.variant ? ` — ${i.variant.label}` : ''),
+          price: itemUnitPrice(i),
+          quantity: i.qty,
+        })),
       shippingAddress: {
         address1: customer.street || customer.address,
         city: customer.city || '',
