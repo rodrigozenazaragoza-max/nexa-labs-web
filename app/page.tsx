@@ -32,7 +32,7 @@ export default async function HomePage() {
       {products.length > 0 && (
         <section className="py-16">
           <div className="text-center">
-            <h2 className="font-heading text-h2 font-bold text-ink">Más vendidos</h2>
+            <h2 className="font-heading text-h2 font-bold text-ink">Más Vendidos</h2>
             <span className="mx-auto mt-3 block h-1 w-14 rounded-full bg-primary" />
           </div>
           <div className="mx-auto max-w-6xl px-6 pt-10">
@@ -44,15 +44,6 @@ export default async function HomePage() {
       <CategoryTabsSection productsByCategory={productsByCategory} />
 
       <CategoriesGrid />
-
-      <section id="compliance" className="mx-auto max-w-4xl px-6 py-16">
-        <h2 className="mb-4 font-heading text-h2 font-bold text-ink">Compliance</h2>
-        <ul className="list-disc space-y-2 pl-5 text-sm text-muted">
-          <li>Etiquetado &quot;For Research Use Only — Not for Human or Animal Use&quot; en cada producto.</li>
-          <li>Ninguna página incluye dosis, vía de administración ni beneficios de salud.</li>
-          <li>Nos reservamos el derecho de rechazar pedidos con intención aparente de uso humano.</li>
-        </ul>
-      </section>
     </div>
   );
 }

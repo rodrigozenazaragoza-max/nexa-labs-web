@@ -4,7 +4,6 @@ import { usePathname } from 'next/navigation';
 import TopBar from './TopBar';
 import Header from './Header';
 import Footer from './Footer';
-import AgeGate from './AgeGate';
 import CartDrawer from './CartDrawer';
 import NewsletterModal from './NewsletterModal';
 import type { Product } from '@/lib/types';
@@ -34,7 +33,6 @@ export default function SiteChrome({
 
   return (
     <>
-      <AgeGate />
       <NewsletterModal />
       <CartDrawer diluentProduct={diluentProduct} recommendedPool={recommendedPool} />
       <TopBar />

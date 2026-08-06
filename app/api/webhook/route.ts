@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { createServiceRoleClient } from '@/lib/supabase/server';
 import { maybeSendOrderConfirmationEmail } from '@/lib/order-notifications';
+import { markOrderCouponUsed } from '@/lib/coupons';
 
 // Webhook de Ecart Pay: nos avisa cuando el estado de un pago cambia
 // (aprobado, rechazado, etc.). Ver docs.ecartpay.com/docs/webhooks-in-ecart-pay
@@ -61,6 +62,9 @@ export async function POST(req: Request) {
   }
 
   if (mappedStatus === 'paid') {
+    // Quema el código de descuento único del pedido (idempotente — si el
+    // checkout ya lo marcó, esto no hace nada).
+    await markOrderCouponUsed(supabase, orderRow.id);
     await maybeSendOrderConfirmationEmail(supabase, orderRow.id);
   }
 

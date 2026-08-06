@@ -6,8 +6,8 @@
 // alguno por otra versión oficial, solo sobreescribe el .svg en esa
 // carpeta — este componente no cambia.
 const LOGOS = [
-  { src: '/payment/visa.svg', alt: 'Visa' },
-  { src: '/payment/mastercard.svg', alt: 'Mastercard' },
+  { src: '/payment/visa-classic.svg', alt: 'Visa' },
+  { src: '/payment/mastercard-classic.svg', alt: 'Mastercard' },
   { src: '/payment/amex.svg', alt: 'American Express' },
   { src: '/payment/spei.svg', alt: 'SPEI' },
 ];

@@ -6,6 +6,7 @@ import { Loader2, Check } from 'lucide-react';
 export default function NewsletterFooterForm() {
   const [email, setEmail] = useState('');
   const [status, setStatus] = useState<'idle' | 'loading' | 'done' | 'error'>('idle');
+  const [issuedCode, setIssuedCode] = useState<string | null>(null);
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();
@@ -17,6 +18,8 @@ export default function NewsletterFooterForm() {
         body: JSON.stringify({ email }),
       });
       if (!res.ok) throw new Error();
+      const data = await res.json();
+      setIssuedCode(data.discountCode ?? null);
       setStatus('done');
     } catch {
       setStatus('error');
@@ -25,9 +28,19 @@ export default function NewsletterFooterForm() {
 
   if (status === 'done') {
     return (
-      <p className="flex items-center gap-1.5 text-xs font-semibold text-primary">
-        <Check size={14} /> ¡Listo! Revisa tu correo.
-      </p>
+      <div className="text-xs">
+        <p className="flex items-center gap-1.5 font-semibold text-primary-dark">
+          <Check size={14} /> ¡Listo!
+        </p>
+        {issuedCode && (
+          <p className="mt-2 rounded-theme border border-dashed border-primary bg-white px-3 py-2 text-center font-heading text-sm font-bold tracking-wide text-primary-dark">
+            {issuedCode}
+          </p>
+        )}
+        <p className="mt-1.5 text-muted">
+          {issuedCode ? 'Tu código de un solo uso — úsalo en tu próxima compra.' : 'Ya estás suscrito.'}
+        </p>
+      </div>
     );
   }
 
@@ -39,7 +52,7 @@ export default function NewsletterFooterForm() {
         value={email}
         onChange={(e) => setEmail(e.target.value)}
         placeholder="tu correo"
-        className="w-full min-w-0 rounded-theme border border-white/15 bg-white/5 px-3 py-2 text-xs text-white placeholder:text-white/40 focus:border-primary focus:outline-none"
+        className="w-full min-w-0 rounded-theme border border-primary/25 bg-white px-3 py-2 text-xs text-ink placeholder:text-muted focus:border-primary focus:outline-none"
       />
       <button
         type="submit"

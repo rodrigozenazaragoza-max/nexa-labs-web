@@ -3,7 +3,6 @@
 import { createContext, useContext, useEffect, useMemo, useState, ReactNode } from 'react';
 import type { CartItem, Product, ProductVariant } from './types';
 import { lineKey, itemUnitPrice } from './cart-utils';
-import { siteConfig } from './site-config';
 
 type CartContextValue = {
   items: CartItem[];
@@ -22,7 +21,7 @@ type CartContextValue = {
   setCouponInput: (v: string) => void;
   appliedCoupon: string | null;
   couponMsg: string | null;
-  applyCoupon: () => void;
+  applyCoupon: () => Promise<void>;
   clearCoupon: () => void;
 };
 
@@ -35,6 +34,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
   const [isOpen, setIsOpen] = useState(false);
   const [couponInput, setCouponInput] = useState('');
   const [appliedCoupon, setAppliedCoupon] = useState<string | null>(null);
+  const [appliedPercent, setAppliedPercent] = useState<number>(0);
   const [couponMsg, setCouponMsg] = useState<string | null>(null);
 
   useEffect(() => {
@@ -79,21 +79,40 @@ export function CartProvider({ children }: { children: ReactNode }) {
     clearCoupon();
   }
 
-  function applyCoupon() {
+  // Valida contra el servidor: ahí viven tanto los códigos únicos de un
+  // solo uso (tabla discount_codes) como el código compartido legacy. La
+  // validación definitiva se repite en /api/checkout al cobrar.
+  async function applyCoupon() {
     const code = couponInput.trim().toUpperCase();
     if (!code) return;
-    if (code === siteConfig.newsletter.discountCode) {
-      setAppliedCoupon(code);
-      setCouponMsg(`Código aplicado: -${siteConfig.newsletter.discountPercent}%`);
-    } else {
+    setCouponMsg('Validando...');
+    try {
+      const res = await fetch('/api/validate-coupon', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ code }),
+      });
+      const data = await res.json();
+      if (data.valid) {
+        setAppliedCoupon(data.code);
+        setAppliedPercent(data.percent);
+        setCouponMsg(`Código aplicado: -${data.percent}%`);
+      } else {
+        setAppliedCoupon(null);
+        setAppliedPercent(0);
+        setCouponMsg(data.message || 'Código no válido.');
+      }
+    } catch {
       setAppliedCoupon(null);
-      setCouponMsg('Código no válido.');
+      setAppliedPercent(0);
+      setCouponMsg('No se pudo validar el código. Intenta de nuevo.');
     }
   }
 
   function clearCoupon() {
     setCouponInput('');
     setAppliedCoupon(null);
+    setAppliedPercent(0);
     setCouponMsg(null);
   }
 
@@ -102,11 +121,8 @@ export function CartProvider({ children }: { children: ReactNode }) {
     [items]
   );
   const discountMxn = useMemo(
-    () =>
-      appliedCoupon === siteConfig.newsletter.discountCode
-        ? totalMxn * (siteConfig.newsletter.discountPercent / 100)
-        : 0,
-    [appliedCoupon, totalMxn]
+    () => (appliedCoupon && appliedPercent > 0 ? totalMxn * (appliedPercent / 100) : 0),
+    [appliedCoupon, appliedPercent, totalMxn]
   );
   const finalTotalMxn = totalMxn - discountMxn;
   const count = useMemo(() => items.reduce((sum, i) => sum + i.qty, 0), [items]);

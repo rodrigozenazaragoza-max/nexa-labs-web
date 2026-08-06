@@ -3,7 +3,6 @@
 import { useEffect, useState } from 'react';
 import { X, Mail } from 'lucide-react';
 import { siteConfig } from '@/lib/site-config';
-import { AGE_GATE_STORAGE_KEY, AGE_GATE_EVENT } from '@/lib/gate';
 
 // Modal de captura de correo con código de descuento.
 // Se muestra una vez por navegador (localStorage), con un pequeño delay
@@ -18,28 +17,15 @@ export default function NewsletterModal() {
   const [visible, setVisible] = useState(false);
   const [email, setEmail] = useState('');
   const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
+  const [issuedCode, setIssuedCode] = useState<string | null>(null);
 
   useEffect(() => {
-    // Nunca aparece si ya se mostró antes, o antes de que el visitante
-    // haya aceptado el gate de edad/uso de investigación.
+    // Nunca aparece si ya se mostró antes. (Antes también esperaba al
+    // age gate, pero ese modal se eliminó del sitio.)
     if (localStorage.getItem(STORAGE_KEY)) return;
 
-    let timer: ReturnType<typeof setTimeout> | undefined;
-
-    function scheduleShow() {
-      timer = setTimeout(() => setVisible(true), DELAY_MS);
-    }
-
-    if (localStorage.getItem(AGE_GATE_STORAGE_KEY)) {
-      scheduleShow();
-    } else {
-      window.addEventListener(AGE_GATE_EVENT, scheduleShow, { once: true });
-    }
-
-    return () => {
-      if (timer) clearTimeout(timer);
-      window.removeEventListener(AGE_GATE_EVENT, scheduleShow);
-    };
+    const timer = setTimeout(() => setVisible(true), DELAY_MS);
+    return () => clearTimeout(timer);
   }, []);
 
   function dismiss() {
@@ -57,6 +43,8 @@ export default function NewsletterModal() {
         body: JSON.stringify({ email }),
       });
       if (!res.ok) throw new Error();
+      const data = await res.json();
+      setIssuedCode(data.discountCode ?? null);
       localStorage.setItem(STORAGE_KEY, '1');
       setStatus('success');
     } catch {
@@ -76,10 +64,20 @@ export default function NewsletterModal() {
         {status === 'success' ? (
           <>
             <h2 className="font-heading text-h2 font-bold text-ink">¡Listo!</h2>
-            <p className="mt-2 text-sm text-muted">Usa este código en tu próxima compra:</p>
-            <p className="mt-4 rounded-theme border-2 border-dashed border-primary bg-primary-light py-3 font-heading text-lg font-bold tracking-wide text-primary">
-              {siteConfig.newsletter.discountCode}
-            </p>
+            {issuedCode ? (
+              <>
+                <p className="mt-2 text-sm text-muted">
+                  Este código es tuyo — de un solo uso, en tu próxima compra:
+                </p>
+                <p className="mt-4 rounded-theme border-2 border-dashed border-primary bg-primary-light py-3 font-heading text-lg font-bold tracking-wide text-primary">
+                  {issuedCode}
+                </p>
+              </>
+            ) : (
+              <p className="mt-2 text-sm text-muted">
+                Ya estás suscrito — te avisaremos de ofertas y lanzamientos.
+              </p>
+            )}
             <button onClick={dismiss} className="mt-5 w-full rounded-theme bg-primary py-3 text-sm font-semibold text-white">
               Seguir comprando
             </button>

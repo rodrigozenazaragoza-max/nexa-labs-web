@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { createServiceRoleClient } from '@/lib/supabase/server';
 import { chargeWithEcartPay } from '@/lib/payment';
-import { siteConfig } from '@/lib/site-config';
+import { checkCoupon, markOrderCouponUsed } from '@/lib/coupons';
 import { itemUnitPrice } from '@/lib/cart-utils';
 import { maybeSendOrderConfirmationEmail } from '@/lib/order-notifications';
 import type { CartItem, CheckoutCustomer } from '@/lib/types';
@@ -27,20 +27,33 @@ export async function POST(req: Request) {
 
   const subtotal = items.reduce((sum, i) => sum + itemUnitPrice(i) * i.qty, 0);
 
-  // Recalcula el descuento en el servidor — nunca confíes en el total que
-  // manda el cliente. Si más adelante quieres múltiples cupones, cambia
-  // esto por una tabla `coupons` en Supabase en vez de un solo código fijo.
-  const couponValid = couponCode && couponCode.toUpperCase() === siteConfig.newsletter.discountCode;
-  const discount = couponValid ? subtotal * (siteConfig.newsletter.discountPercent / 100) : 0;
-  const total = subtotal - discount;
-
   const supabase = createServiceRoleClient();
+
+  // Recalcula el descuento en el servidor — nunca confíes en el total que
+  // manda el cliente. checkCoupon valida tanto los códigos únicos de un
+  // solo uso (tabla discount_codes) como el código compartido legacy.
+  const coupon = couponCode ? await checkCoupon(supabase, couponCode) : null;
+  if (couponCode && coupon && !coupon.valid) {
+    return NextResponse.json(
+      {
+        error:
+          coupon.reason === 'already_used'
+            ? 'El código de descuento ya fue utilizado. Quítalo e intenta de nuevo.'
+            : 'El código de descuento no es válido. Quítalo e intenta de nuevo.',
+      },
+      { status: 400 }
+    );
+  }
+  const discount = coupon?.valid ? subtotal * (coupon.percent / 100) : 0;
+  const total = subtotal - discount;
 
   const { data: order, error: orderError } = await supabase
     .from('orders')
     .insert({
       status: 'pending',
       total_mxn: total,
+      coupon_code: coupon?.valid ? coupon.code : null,
+      discount_mxn: discount,
       customer_name: customer.name,
       customer_email: customer.email,
       customer_phone: customer.phone,
@@ -124,6 +137,9 @@ export async function POST(req: Request) {
   }
 
   if (updates.status === 'paid') {
+    // Quema el código de descuento único (si el pedido usó uno) — a partir
+    // de aquí ya no se puede volver a usar.
+    await markOrderCouponUsed(supabase, order.id);
     await maybeSendOrderConfirmationEmail(supabase, order.id);
   }
 
