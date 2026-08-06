@@ -10,9 +10,11 @@ import type { Product } from '@/lib/types';
 // GrabCut, viven en public/hero/). Clave = slug del producto. Para
 // destacar un producto nuevo con el look "flotando", agrega su PNG
 // recortado aquí — si no está, se usa la foto normal en una tarjeta.
+// Recortes hechos con remove.bg (IA de verdad, no mi GrabCut manual) —
+// transparencia limpia confirmada. Clave = slug del producto.
 const HERO_CUTOUTS: Record<string, string> = {
-  retatrutida: '/hero/retatrutide-v2.png',
-  'mots-c': '/hero/mots-c-v2.png',
+  retatrutida: '/hero/retatrutide-v3.png',
+  'mots-c': '/hero/mots-c-v3.png',
 };
 
 // Hero de la home. Las fotos que se ven a la derecha vienen de los
