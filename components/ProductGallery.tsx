@@ -6,7 +6,7 @@ import SaleBadge from './SaleBadge';
 import ProductPurchaseBox from './ProductPurchaseBox';
 import StickyBuyBar from './StickyBuyBar';
 import FrequentlyBoughtTogether from './FrequentlyBoughtTogether';
-import ProductTrustRow, { ProductQuickLinks } from './ProductTrustRow';
+import ProductTrustRow, { ProductQuickLinks, ProductTrustBadges } from './ProductTrustRow';
 import { productLeadImage } from '@/lib/product-image';
 import type { Product } from '@/lib/types';
 
@@ -78,6 +78,10 @@ export default function ProductGallery({
             tabs de Overview suben en vez de flotar tras un espacio blanco. */}
         <div className="mt-5">
           <ProductQuickLinks />
+        </div>
+
+        <div className="mt-4">
+          <ProductTrustBadges />
         </div>
       </div>
 

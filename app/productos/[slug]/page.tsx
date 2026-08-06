@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { ChevronLeft, TriangleAlert } from 'lucide-react';
+import { ChevronLeft } from 'lucide-react';
 import { notFound } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
 import ProductGallery from '@/components/ProductGallery';
@@ -35,15 +35,20 @@ export default async function ProductPage({ params }: { params: { slug: string }
     <div className="pb-20">
       {/* pb-20: espacio para que la barra fija de "agregar al carrito" no
           tape el final de la página cuando el cliente llega hasta abajo. */}
-      {/* Aviso de uso — estilo SwissChems, arriba de todo */}
-      <div className="border-b border-danger/20 bg-danger-bg px-6 py-3 text-center">
-        <p className="flex flex-wrap items-center justify-center gap-1.5 text-xs font-semibold text-danger">
-          <TriangleAlert size={14} /> Uso de producto: este producto es exclusivamente para investigación.
-        </p>
-        <p className="mt-0.5 text-[11px] text-danger/80">
-          Toda la información de este sitio es educativa. Prohibida cualquier introducción al cuerpo humano o animal.
-          Solo debe ser manejado por profesionales calificados. No es un medicamento, alimento ni cosmético.
-        </p>
+      {/* Aviso de uso — tarjeta redondeada estilo SwissChems: borde suave,
+          fondo casi blanco, "Uso de producto:" en rojo y el resto en tinta. */}
+      <div className="mx-auto max-w-6xl px-6 pt-6">
+        <div className="rounded-2xl border border-danger/25 bg-[#faf6f4] px-6 py-5 text-center">
+          <p className="text-sm font-bold">
+            <span className="text-danger">Uso de producto:</span>{' '}
+            <span className="text-ink">este producto es exclusivamente para investigación.</span>
+          </p>
+          <p className="mt-1.5 text-xs leading-relaxed text-muted">
+            Toda la información de este sitio es educativa. Prohibida cualquier introducción al cuerpo humano o
+            animal. Solo debe ser manejado por profesionales calificados. No es un medicamento, alimento ni
+            cosmético, y no debe ser mal etiquetado, mal usado o presentado como tal.
+          </p>
+        </div>
       </div>
 
       <div className="mx-auto flex max-w-6xl items-center justify-between px-6 pt-6 text-xs">

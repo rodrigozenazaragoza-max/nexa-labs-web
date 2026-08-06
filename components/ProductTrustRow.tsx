@@ -26,8 +26,9 @@ export function ProductQuickLinks() {
   );
 }
 
-// Fila de confianza estilo SwissChems: 3 badges + métodos de pago.
-export default function ProductTrustRow() {
+// Badges de confianza (pureza, RUO, compra segura) — columna izquierda,
+// debajo de los accesos rápidos.
+export function ProductTrustBadges() {
   const badges = [
     { icon: ShieldCheck, label: '99% Pureza Garantizada' },
     { icon: FlaskConical, label: 'Solo Uso en Investigación' },
@@ -35,16 +36,22 @@ export default function ProductTrustRow() {
   ];
 
   return (
-    <div className="mt-8 space-y-4">
-      <div className="grid grid-cols-3 gap-3 rounded-theme bg-surface p-4 text-center">
-        {badges.map(({ icon: Icon, label }) => (
-          <div key={label} className="flex flex-col items-center gap-1.5">
-            <Icon size={18} className="text-primary" />
-            <span className="text-[11px] font-medium text-ink">{label}</span>
-          </div>
-        ))}
-      </div>
+    <div className="grid grid-cols-3 gap-3 rounded-theme bg-surface p-4 text-center">
+      {badges.map(({ icon: Icon, label }) => (
+        <div key={label} className="flex flex-col items-center gap-1.5">
+          <Icon size={18} className="text-primary" />
+          <span className="text-[11px] font-medium text-ink">{label}</span>
+        </div>
+      ))}
+    </div>
+  );
+}
 
+// Métodos de pago aceptados — columna derecha, sube justo después de la
+// caja de compra / cross-sell.
+export default function ProductTrustRow() {
+  return (
+    <div className="mt-8">
       <div className="rounded-theme border border-border p-4">
         <p className="mb-2 flex items-center gap-1.5 text-xs font-semibold text-ink">
           <Lock size={13} /> Métodos de pago aceptados
