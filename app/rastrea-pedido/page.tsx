@@ -4,7 +4,7 @@ import TrackOrderCard from '@/components/faq/TrackOrderCard';
 import { siteConfig } from '@/lib/site-config';
 import { createClient } from '@/lib/supabase/server';
 import { getSectionHeaderImage } from '@/lib/section-header-image';
-import { getSiteSettings } from '@/lib/get-settings';
+import { getSettings } from '@/lib/data';
 import SupportContactCard from '@/components/SupportContactCard';
 
 export const metadata = { title: `Rastrea tu Pedido | ${siteConfig.brand.name}` };
@@ -23,7 +23,7 @@ export default async function RastreaPedidoPage({
 }) {
   const supabase = createClient();
   const headerImage = await getSectionHeaderImage(supabase);
-  const settings = await getSiteSettings(supabase);
+  const settings = await getSettings();
   const { shippingDaysMin, shippingDaysMax } = siteConfig.policies;
 
   return (

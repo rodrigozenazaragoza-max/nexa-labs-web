@@ -16,7 +16,7 @@ export async function maybeSendOrderConfirmationEmail(supabase: SupabaseClient, 
   try {
     const { data: order, error: orderError } = await supabase
       .from('orders')
-      .select('id, order_number, status, total_mxn, customer_name, customer_email, shipping_address, confirmation_email_sent_at')
+      .select('id, order_number, status, total_mxn, discount_mxn, shipping_mxn, customer_name, customer_email, shipping_address, confirmation_email_sent_at')
       .eq('id', orderId)
       .single();
 
@@ -36,6 +36,8 @@ export async function maybeSendOrderConfirmationEmail(supabase: SupabaseClient, 
       customerName: order.customer_name,
       customerEmail: order.customer_email,
       totalMxn: Number(order.total_mxn),
+      discountMxn: Number(order.discount_mxn ?? 0),
+      shippingMxn: Number(order.shipping_mxn ?? 0),
       shippingAddress: order.shipping_address,
       items: items.map((i: any) => ({
         name: i.product?.name || 'Producto',

@@ -1,38 +1,28 @@
 import Link from 'next/link';
 import { ChevronLeft } from 'lucide-react';
 import { notFound } from 'next/navigation';
-import { createClient } from '@/lib/supabase/server';
-import { getSiteSettings } from '@/lib/get-settings';
+import { getAllProducts, getSettings } from '@/lib/data';
 import ProductGallery from '@/components/ProductGallery';
 import ProductTabs from '@/components/ProductTabs';
 import ProductCarousel from '@/components/ProductCarousel';
 import type { Product } from '@/lib/types';
 
 export default async function ProductPage({ params }: { params: { slug: string } }) {
-  const supabase = createClient();
-  const { data: product } = await supabase
-    .from('products')
-    .select('*, variants:product_variants(*)')
-    .eq('slug', params.slug)
-    .single();
+  // Antes esto eran 4 consultas seguidas: el producto, los ajustes, los
+  // relacionados y el "te puede gustar" — y las dos últimas pedían
+  // exactamente lo mismo a Supabase, solo con distinto límite. Ahora el
+  // catálogo se lee una vez (memoizado en lib/data.ts) y los relacionados
+  // se filtran en memoria.
+  const [allProducts, settings] = await Promise.all([getAllProducts(), getSettings()]);
 
+  const product = allProducts.find((p) => p.slug === params.slug);
   if (!product) return notFound();
 
-  const settings = await getSiteSettings(supabase);
-
-  const { data: related } = await supabase
-    .from('products')
-    .select('*, variants:product_variants(*)')
-    .eq('category', product.category)
-    .neq('id', product.id)
-    .limit(3);
-
-  const { data: youMayLike } = await supabase
-    .from('products')
-    .select('*, variants:product_variants(*)')
-    .eq('category', product.category)
-    .neq('id', product.id)
-    .limit(12);
+  const sameCategory = allProducts.filter(
+    (p) => p.category === product.category && p.id !== product.id
+  );
+  const related = sameCategory.slice(0, 3);
+  const youMayLike = sameCategory.slice(0, 12);
 
   return (
     <div className="pb-20">

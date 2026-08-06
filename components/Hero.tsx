@@ -1,9 +1,9 @@
 import Image from 'next/image';
 import Link from 'next/link';
-import { createClient } from '@/lib/supabase/server';
 import { productLeadImage } from '@/lib/product-image';
 import { siteConfig } from '@/lib/site-config';
-import { getSiteSettings, buildWhatsAppUrl } from '@/lib/get-settings';
+import { buildWhatsAppUrl } from '@/lib/get-settings';
+import { getAllProducts, getSettings } from '@/lib/data';
 import type { Product } from '@/lib/types';
 
 // Recortes con transparencia real para el hero (le quitamos el fondo con
@@ -21,17 +21,13 @@ const HERO_CUTOUTS: Record<string, string> = {
 // productos listados en siteConfig.hero.featuredProductSlugs — cambia esa
 // lista para destacar otros productos, no hace falta tocar este archivo.
 export default async function Hero() {
-  const supabase = createClient();
-  const settings = await getSiteSettings(supabase);
+  // Ambas salen de las consultas memoizadas: el layout ya las pidió en esta
+  // misma petición, así que aquí no se hace ningún viaje extra a Supabase.
+  const [settings, allProducts] = await Promise.all([getSettings(), getAllProducts()]);
   const wa = buildWhatsAppUrl(settings.whatsappNumber, settings.whatsappMessage);
 
-  const { data: featured } = await supabase
-    .from('products')
-    .select('*, variants:product_variants(*)')
-    .in('slug', siteConfig.hero.featuredProductSlugs);
-
   const ordered = siteConfig.hero.featuredProductSlugs
-    .map((slug) => (featured ?? []).find((p: Product) => p.slug === slug))
+    .map((slug) => allProducts.find((p: Product) => p.slug === slug))
     .filter(Boolean) as Product[];
 
   return (

@@ -5,7 +5,7 @@ import SupportContactCard from '@/components/SupportContactCard';
 import { siteConfig } from '@/lib/site-config';
 import { createClient } from '@/lib/supabase/server';
 import { getSectionHeaderImage } from '@/lib/section-header-image';
-import { getSiteSettings } from '@/lib/get-settings';
+import { getSettings } from '@/lib/data';
 
 export const metadata = {
   title: `Herramientas | ${siteConfig.brand.name}`,
@@ -29,7 +29,7 @@ const TOOLS = [
 export default async function HerramientasPage() {
   const supabase = createClient();
   const headerImage = await getSectionHeaderImage(supabase);
-  const settings = await getSiteSettings(supabase);
+  const settings = await getSettings();
 
   return (
     <div>

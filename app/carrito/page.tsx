@@ -4,22 +4,17 @@ import { siteConfig } from '@/lib/site-config';
 import CartList from '@/components/CartList';
 import SectionHeader from '@/components/SectionHeader';
 import { getSectionHeaderImage } from '@/lib/section-header-image';
+import { getBestsellersCached, getDiluentProduct } from '@/lib/data';
 
 export default async function CarritoPage() {
   const supabase = createClient();
-  const { data: diluentProduct } = await supabase
-    .from('products')
-    .select('*')
-    .eq('slug', siteConfig.diluent.slug)
-    .maybeSingle();
-
-  const { data: recommendedPool } = await supabase
-    .from('products')
-    .select('*, variants:product_variants(*)')
-    .neq('slug', siteConfig.diluent.slug)
-    .order('name')
-    .limit(8);
-  const headerImage = await getSectionHeaderImage(supabase);
+  // Todo sale de las consultas memoizadas que el layout ya hizo en esta
+  // misma petición — cero viajes extra a Supabase.
+  const [diluentProduct, recommendedPool, headerImage] = await Promise.all([
+    getDiluentProduct(),
+    getBestsellersCached(8, siteConfig.diluent.slug),
+    getSectionHeaderImage(supabase),
+  ]);
 
   return (
     <div>

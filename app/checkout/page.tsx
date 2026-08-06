@@ -18,7 +18,7 @@ type CpLookupStatus = 'idle' | 'loading' | 'found' | 'not-found';
 
 export default function CheckoutPage() {
   const {
-    items, totalMxn, discountMxn, finalTotalMxn, clear,
+    items, totalMxn, discountMxn, shippingMxn, finalTotalMxn, clear,
     couponInput, setCouponInput, appliedCoupon, couponMsg, applyCoupon,
     setQty, removeItem,
   } = useCart();
@@ -509,14 +509,24 @@ export default function CheckoutPage() {
             </div>
             {appliedCoupon && (
               <div className="flex items-center justify-between text-primary">
-                <span>Descuento ({siteConfig.newsletter.discountPercent}%)</span>
+                <span>Descuento</span>
                 <span className="font-price">-${formatMxn(discountMxn)} MXN</span>
               </div>
             )}
             <div className="flex items-center justify-between text-muted">
               <span>Envío</span>
-              <span className="font-semibold text-primary">Gratis</span>
+              {shippingMxn > 0 ? (
+                <span className="font-price">${formatMxn(shippingMxn)} MXN</span>
+              ) : (
+                <span className="font-semibold text-primary">Gratis</span>
+              )}
             </div>
+            {shippingMxn > 0 && (
+              <p className="pt-1 text-xs text-muted">
+                Te faltan ${formatMxn(siteConfig.freeShippingThresholdMxn - totalMxn)} MXN para
+                envío gratis.
+              </p>
+            )}
             <div className="flex items-center justify-between border-t border-border pt-2 text-lg font-semibold text-ink">
               <span>Total</span>
               <span className="font-price">${formatMxn(finalTotalMxn)} MXN</span>

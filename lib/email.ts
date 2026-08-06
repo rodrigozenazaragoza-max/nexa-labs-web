@@ -42,6 +42,8 @@ export type OrderConfirmationData = {
   customerName: string;
   customerEmail: string;
   totalMxn: number;
+  discountMxn?: number;
+  shippingMxn?: number;
   shippingAddress: string;
   items: OrderConfirmationItem[];
 };
@@ -102,7 +104,19 @@ function orderConfirmationHtml(data: OrderConfirmationData): string {
           </thead>
           <tbody>${itemsRowsHtml(data.items)}</tbody>
         </table>
-        <div style="text-align:right;margin-top:12px;font-size:16px;font-weight:800;color:#0f172a;">
+        <div style="text-align:right;margin-top:12px;font-size:13px;color:#475569;">
+          ${
+            data.discountMxn && data.discountMxn > 0
+              ? `<div style="margin-bottom:4px;">Descuento: <strong style="color:#10b981;">-$${formatMxn(data.discountMxn)} MXN</strong></div>`
+              : ''
+          }
+          <div style="margin-bottom:6px;">Envío: ${
+            data.shippingMxn && data.shippingMxn > 0
+              ? `<strong>$${formatMxn(data.shippingMxn)} MXN</strong>`
+              : '<strong style="color:#10b981;">Gratis</strong>'
+          }</div>
+        </div>
+        <div style="text-align:right;font-size:16px;font-weight:800;color:#0f172a;">
           Total: $${formatMxn(data.totalMxn)} MXN
         </div>
         <div style="background:#f8fafc;border-radius:8px;padding:16px;margin-top:20px;">

@@ -1,5 +1,4 @@
-import { createClient } from '@/lib/supabase/server';
-import { getBestsellers } from '@/lib/bestsellers';
+import { getAllProducts, getBestsellersCached } from '@/lib/data';
 import Hero from '@/components/Hero';
 import TrustBar from '@/components/TrustBar';
 import CategoriesGrid from '@/components/CategoriesGrid';
@@ -8,18 +7,15 @@ import CategoryTabsSection from '@/components/CategoryTabsSection';
 import type { Product } from '@/lib/types';
 
 export default async function HomePage() {
-  const supabase = createClient();
-  const products = await getBestsellers(supabase, 12);
+  // Las dos comparten la misma consulta memoizada de productos, así que
+  // esto ya no son tres lecturas de la tabla — es una sola.
+  const [products, allProducts] = await Promise.all([getBestsellersCached(12), getAllProducts()]);
 
   // Agrupa TODO el catálogo por categoría para la sección de tabs — usa
   // las categorías reales que ya tienes cargadas en Supabase, no una
   // lista fija.
-  const { data: allProducts } = await supabase
-    .from('products')
-    .select('*, variants:product_variants(*)')
-    .order('name');
   const productsByCategory: Record<string, Product[]> = {};
-  for (const p of (allProducts ?? []) as Product[]) {
+  for (const p of [...allProducts].sort((a, b) => a.name.localeCompare(b.name))) {
     if (!productsByCategory[p.category]) productsByCategory[p.category] = [];
     productsByCategory[p.category].push(p);
   }

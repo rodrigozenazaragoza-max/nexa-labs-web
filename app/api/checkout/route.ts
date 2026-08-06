@@ -2,7 +2,9 @@ import { NextResponse } from 'next/server';
 import { createServiceRoleClient } from '@/lib/supabase/server';
 import { chargeWithEcartPay } from '@/lib/payment';
 import { checkCoupon, markOrderCouponUsed } from '@/lib/coupons';
-import { itemUnitPrice } from '@/lib/cart-utils';
+import { repriceCart } from '@/lib/pricing';
+import { shippingCostFor } from '@/lib/shipping';
+import { applyOrderStock } from '@/lib/stock';
 import { maybeSendOrderConfirmationEmail } from '@/lib/order-notifications';
 import type { CartItem, CheckoutCustomer } from '@/lib/types';
 
@@ -25,9 +27,17 @@ export async function POST(req: Request) {
     );
   }
 
-  const subtotal = items.reduce((sum, i) => sum + itemUnitPrice(i) * i.qty, 0);
-
   const supabase = createServiceRoleClient();
+
+  // SEGURIDAD: se ignoran por completo los precios que vienen del navegador
+  // y se vuelven a leer de la base de datos usando solo los IDs. Sin esto,
+  // cualquiera podría editar el carrito en las herramientas de desarrollador
+  // y pagar $1 por un vial de $2,000. De paso valida existencias.
+  const priced = await repriceCart(supabase, items);
+  if (!priced.ok) {
+    return NextResponse.json({ error: priced.error }, { status: 400 });
+  }
+  const subtotal = priced.subtotal;
 
   // Recalcula el descuento en el servidor — nunca confíes en el total que
   // manda el cliente. checkCoupon valida tanto los códigos únicos de un
@@ -44,8 +54,35 @@ export async function POST(req: Request) {
       { status: 400 }
     );
   }
-  const discount = coupon?.valid ? subtotal * (coupon.percent / 100) : 0;
-  const total = subtotal - discount;
+  // ---------------------------------------------------------------------
+  // Monto a cobrar.
+  //
+  // IMPORTANTE: Ecart Pay calcula el cargo sumando los renglones que le
+  // mandamos — no acepta un "total" aparte. Por eso el descuento se aplica
+  // BAJANDO el precio unitario de cada renglón, y el envío viaja como un
+  // renglón más. Si no, el cliente vería un total con descuento en pantalla
+  // y su tarjeta recibiría el cargo completo.
+  //
+  // El total que guardamos se deriva de esos mismos renglones ya redondeados,
+  // así lo que dice la base de datos y lo que cobra la pasarela coinciden
+  // siempre al centavo.
+  // ---------------------------------------------------------------------
+  const discountPct = coupon?.valid ? coupon.percent : 0;
+  const round2 = (n: number) => Math.round(n * 100) / 100;
+
+  const chargeLines = priced.lines.map((l) => ({
+    ...l,
+    chargedUnitPrice: round2(l.unitPriceMxn * (1 - discountPct / 100)),
+  }));
+
+  const merchandiseCharged = chargeLines.reduce((sum, l) => sum + l.chargedUnitPrice * l.qty, 0);
+  const discount = round2(subtotal - merchandiseCharged);
+
+  // Envío con la misma regla que ve el cliente (lib/shipping.ts): gratis a
+  // partir del umbral, tarifa fija abajo. Se evalúa sobre el subtotal de
+  // mercancía antes del descuento.
+  const shipping = shippingCostFor(subtotal);
+  const total = round2(merchandiseCharged + shipping);
 
   const { data: order, error: orderError } = await supabase
     .from('orders')
@@ -54,6 +91,7 @@ export async function POST(req: Request) {
       total_mxn: total,
       coupon_code: coupon?.valid ? coupon.code : null,
       discount_mxn: discount,
+      shipping_mxn: shipping,
       customer_name: customer.name,
       customer_email: customer.email,
       customer_phone: customer.phone,
@@ -69,14 +107,16 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: 'No se pudo crear la orden.' }, { status: 500 });
   }
 
+  // Se guardan los renglones YA re-cotizados contra la base de datos, no lo
+  // que mandó el navegador.
   const { error: itemsError } = await supabase.from('order_items').insert(
-    items.map((i) => ({
+    priced.lines.map((l) => ({
       order_id: order.id,
-      product_id: i.product.id,
-      variant_id: i.variant?.id ?? null,
-      variant_label: i.variant?.label ?? null,
-      qty: i.qty,
-      unit_price_mxn: itemUnitPrice(i),
+      product_id: l.productId,
+      variant_id: l.variantId,
+      variant_label: l.variantLabel,
+      qty: l.qty,
+      unit_price_mxn: l.unitPriceMxn,
     }))
   );
 
@@ -102,13 +142,15 @@ export async function POST(req: Request) {
       // greater than 0") — filtramos artículos gratis/de regalo (ej. agua
       // bacteriostática de cortesía) del cobro. Siguen guardados en
       // order_items para el envío, solo no se le cobran al cliente.
-      items: items
-        .filter((i) => itemUnitPrice(i) > 0)
-        .map((i) => ({
-          name: i.product.name + (i.variant ? ` — ${i.variant.label}` : ''),
-          price: itemUnitPrice(i),
-          quantity: i.qty,
-        })),
+      // Precios YA con el descuento aplicado, más el envío como un renglón
+      // extra — es la única forma de que Ecart Pay cobre exactamente el
+      // total que el cliente vio en pantalla.
+      items: [
+        ...chargeLines
+          .filter((l) => l.chargedUnitPrice > 0)
+          .map((l) => ({ name: l.name, price: l.chargedUnitPrice, quantity: l.qty })),
+        ...(shipping > 0 ? [{ name: 'Envío', price: shipping, quantity: 1 }] : []),
+      ],
       shippingAddress: {
         address1: customer.street || customer.address,
         city: customer.city || '',
@@ -137,9 +179,11 @@ export async function POST(req: Request) {
   }
 
   if (updates.status === 'paid') {
-    // Quema el código de descuento único (si el pedido usó uno) — a partir
-    // de aquí ya no se puede volver a usar.
+    // Quema el código de descuento único (si el pedido usó uno) y descuenta
+    // el inventario. Ambas son idempotentes: el webhook de Ecart Pay las
+    // vuelve a llamar y no pasa nada.
     await markOrderCouponUsed(supabase, order.id);
+    await applyOrderStock(supabase, order.id);
     await maybeSendOrderConfirmationEmail(supabase, order.id);
   }
 

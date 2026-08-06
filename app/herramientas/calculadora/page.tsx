@@ -6,7 +6,7 @@ import SupportContactCard from '@/components/SupportContactCard';
 import { siteConfig } from '@/lib/site-config';
 import { createClient } from '@/lib/supabase/server';
 import { getSectionHeaderImage } from '@/lib/section-header-image';
-import { getSiteSettings } from '@/lib/get-settings';
+import { getAllProducts, getSettings } from '@/lib/data';
 
 export const metadata = {
   title: `Calculadora de Reconstitución | ${siteConfig.brand.name}`,
@@ -96,19 +96,18 @@ function parseMg(label: string): number | null {
 
 export default async function CalculadoraPage() {
   const supabase = createClient();
-  const headerImage = await getSectionHeaderImage(supabase);
-  const settings = await getSiteSettings(supabase);
+  const [headerImage, settings, allProducts] = await Promise.all([
+    getSectionHeaderImage(supabase),
+    getSettings(),
+    getAllProducts(),
+  ]);
 
   // Catálogo real para el selector de péptido — cada producto con las
   // presentaciones que de verdad vendemos. Se excluye el agua
   // bacteriostática (es el diluyente, no un péptido a reconstituir).
-  const { data: rawProducts } = await supabase
-    .from('products')
-    .select('name, slug, variants:product_variants(label, sort_order)')
-    .neq('slug', siteConfig.diluent.slug)
-    .order('name');
-
-  const calcProducts: CalcProduct[] = (rawProducts ?? [])
+  const calcProducts: CalcProduct[] = allProducts
+    .filter((p) => p.slug !== siteConfig.diluent.slug)
+    .sort((a, b) => a.name.localeCompare(b.name))
     .map((p: any) => ({
       name: p.name,
       slug: p.slug,

@@ -3,7 +3,7 @@ import ReturnRequestCard from '@/components/faq/ReturnRequestCard';
 import { siteConfig } from '@/lib/site-config';
 import { createClient } from '@/lib/supabase/server';
 import { getSectionHeaderImage } from '@/lib/section-header-image';
-import { getSiteSettings } from '@/lib/get-settings';
+import { getSettings } from '@/lib/data';
 import SupportContactCard from '@/components/SupportContactCard';
 
 export const metadata = { title: `Devoluciones | ${siteConfig.brand.name}` };
@@ -11,7 +11,7 @@ export const metadata = { title: `Devoluciones | ${siteConfig.brand.name}` };
 export default async function DevolucionesPage() {
   const supabase = createClient();
   const headerImage = await getSectionHeaderImage(supabase);
-  const settings = await getSiteSettings(supabase);
+  const settings = await getSettings();
   const { returnWindowDays } = siteConfig.policies;
 
   return (

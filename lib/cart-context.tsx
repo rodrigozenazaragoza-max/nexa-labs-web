@@ -3,6 +3,7 @@
 import { createContext, useContext, useEffect, useMemo, useState, ReactNode } from 'react';
 import type { CartItem, Product, ProductVariant } from './types';
 import { lineKey, itemUnitPrice } from './cart-utils';
+import { shippingCostFor } from './shipping';
 
 type CartContextValue = {
   items: CartItem[];
@@ -10,9 +11,10 @@ type CartContextValue = {
   removeItem: (key: string) => void;
   setQty: (key: string, qty: number) => void;
   clear: () => void;
-  totalMxn: number; // subtotal, sin descuento
+  totalMxn: number; // subtotal de mercancía, sin descuento ni envío
   discountMxn: number;
-  finalTotalMxn: number; // subtotal - descuento
+  shippingMxn: number;
+  finalTotalMxn: number; // subtotal - descuento + envío
   count: number;
   isOpen: boolean;
   openCart: () => void;
@@ -124,13 +126,17 @@ export function CartProvider({ children }: { children: ReactNode }) {
     () => (appliedCoupon && appliedPercent > 0 ? totalMxn * (appliedPercent / 100) : 0),
     [appliedCoupon, appliedPercent, totalMxn]
   );
-  const finalTotalMxn = totalMxn - discountMxn;
+  // Envío calculado con la MISMA función que usa el servidor al cobrar
+  // (lib/shipping.ts), para que la pantalla nunca prometa algo distinto a lo
+  // que llega a la tarjeta.
+  const shippingMxn = useMemo(() => shippingCostFor(totalMxn), [totalMxn]);
+  const finalTotalMxn = totalMxn - discountMxn + shippingMxn;
   const count = useMemo(() => items.reduce((sum, i) => sum + i.qty, 0), [items]);
 
   return (
     <CartContext.Provider
       value={{
-        items, addItem, removeItem, setQty, clear, totalMxn, discountMxn, finalTotalMxn, count,
+        items, addItem, removeItem, setQty, clear, totalMxn, discountMxn, shippingMxn, finalTotalMxn, count,
         isOpen, openCart: () => setIsOpen(true), closeCart: () => setIsOpen(false),
         couponInput, setCouponInput, appliedCoupon, couponMsg, applyCoupon, clearCoupon,
       }}

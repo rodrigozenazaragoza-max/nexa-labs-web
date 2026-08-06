@@ -6,7 +6,7 @@ import SupportContactCard from '@/components/SupportContactCard';
 import { siteConfig } from '@/lib/site-config';
 import { createClient } from '@/lib/supabase/server';
 import { getSectionHeaderImage } from '@/lib/section-header-image';
-import { getSiteSettings } from '@/lib/get-settings';
+import { getAllProducts, getSettings } from '@/lib/data';
 
 export const metadata = {
   title: `Certificados de Análisis (COA) | ${siteConfig.brand.name}`,
@@ -56,16 +56,17 @@ const WHAT_IS_CHECKED = [
 
 export default async function CertificadosPage() {
   const supabase = createClient();
-  const headerImage = await getSectionHeaderImage(supabase);
-  const settings = await getSiteSettings(supabase);
+  const [headerImage, settings, allProducts] = await Promise.all([
+    getSectionHeaderImage(supabase),
+    getSettings(),
+    getAllProducts(),
+  ]);
 
-  const { data: products } = await supabase
-    .from('products')
-    .select('slug, name, category, purity, coa_url, coa_lot, coa_issued_on, variants:product_variants(label, sort_order)')
-    .neq('slug', siteConfig.diluent.slug)
-    .order('name');
+  const products = allProducts
+    .filter((p) => p.slug !== siteConfig.diluent.slug)
+    .sort((a, b) => a.name.localeCompare(b.name));
 
-  const entries: CoaEntry[] = (products ?? []).map((p: any) => ({
+  const entries: CoaEntry[] = products.map((p: any) => ({
     slug: p.slug,
     name: p.name,
     category: p.category,

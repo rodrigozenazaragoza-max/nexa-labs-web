@@ -1,11 +1,9 @@
 import type { Metadata } from 'next';
 import './globals.css';
 import { CartProvider } from '@/lib/cart-context';
-import { createClient } from '@/lib/supabase/server';
 import SiteChrome from '@/components/SiteChrome';
 import { siteConfig } from '@/lib/site-config';
-import { getBestsellers } from '@/lib/bestsellers';
-import { getSiteSettings } from '@/lib/get-settings';
+import { getBestsellersCached, getDiluentProduct, getSettings } from '@/lib/data';
 
 export const metadata: Metadata = {
   title: `${siteConfig.brand.name} | Péptidos de Investigación`,
@@ -13,20 +11,18 @@ export const metadata: Metadata = {
 };
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
-  const supabase = createClient();
-  const { data: diluentProduct } = await supabase
-    .from('products')
-    .select('*, variants:product_variants(*)')
-    .eq('slug', siteConfig.diluent.slug)
-    .maybeSingle();
-
-  // Pool de productos para el upsell "Recomendados para tu investigación"
-  // dentro del carrito — ahora ordenado por ventas reales (no alfabético),
-  // igual que "Más vendidos" en el home. Se filtra el que ya está en el
-  // carrito ahí mismo, y el diluyente (agua bacteriostática) aquí también
-  // porque ya tiene su propio recordatorio dedicado (DiluentReminder).
-  const recommendedPool = await getBestsellers(supabase, 8, siteConfig.diluent.slug);
-  const settings = await getSiteSettings(supabase);
+  // Las tres cargas corren EN PARALELO (antes eran tres esperas seguidas) y
+  // comparten las mismas consultas memoizadas de lib/data.ts. El layout se
+  // ejecuta en cada navegación, así que aquí es donde más se nota.
+  //
+  // recommendedPool alimenta el upsell "Recomendados para tu investigación"
+  // del carrito, ordenado por ventas reales. Se excluye el diluyente porque
+  // ya tiene su propio recordatorio dedicado (DiluentReminder).
+  const [diluentProduct, recommendedPool, settings] = await Promise.all([
+    getDiluentProduct(),
+    getBestsellersCached(8, siteConfig.diluent.slug),
+    getSettings(),
+  ]);
 
   return (
     <html lang="es">
@@ -41,7 +37,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
       </head>
       <body>
         <CartProvider>
-          <SiteChrome diluentProduct={diluentProduct ?? null} recommendedPool={recommendedPool} whatsappNumber={settings.whatsappNumber} whatsappMessage={settings.whatsappMessage}>
+          <SiteChrome diluentProduct={diluentProduct} recommendedPool={recommendedPool} whatsappNumber={settings.whatsappNumber} whatsappMessage={settings.whatsappMessage}>
             {children}
           </SiteChrome>
         </CartProvider>
