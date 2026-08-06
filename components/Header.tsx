@@ -11,7 +11,8 @@ const NAV_LINKS = [
   { href: '/', label: 'Inicio' },
   { href: '/productos', label: 'Productos' },
   { href: '/nosotros', label: 'Nosotros' },
-  { href: '/#compliance', label: 'Certificados' },
+  { href: '/#cumplimiento', label: 'Certificados' },
+  { href: '/herramientas', label: 'Herramientas' },
 ];
 
 // Dropdown "AYUDA" — reemplaza los links sueltos de FAQ y Contacto, estilo

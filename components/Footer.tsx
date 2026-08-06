@@ -42,6 +42,8 @@ export default function Footer({ whatsappNumber, whatsappMessage }: { whatsappNu
             <ul className="space-y-2 text-sm text-ink/80">
               <li><a href="/productos" className="hover:text-primary-dark">Catálogo</a></li>
               <li><a href="/#cumplimiento" className="hover:text-primary-dark">Certificados</a></li>
+              <li><a href="/herramientas" className="hover:text-primary-dark">Herramientas</a></li>
+              <li><a href="/herramientas/calculadora" className="hover:text-primary-dark">Calculadora de reconstitución</a></li>
               <li><a href="/faq" className="hover:text-primary-dark">FAQ</a></li>
             </ul>
           </div>
