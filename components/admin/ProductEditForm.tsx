@@ -209,6 +209,8 @@ export default function ProductEditForm({ product, categories }: { product: Prod
   const [price, setPrice] = useState(String(product.price_mxn));
   const [stock, setStock] = useState(String(product.stock));
   const [imageUrl, setImageUrl] = useState(product.image_url);
+  const [coaLot, setCoaLot] = useState(product.coa_lot ?? '');
+  const [coaIssuedOn, setCoaIssuedOn] = useState(product.coa_issued_on ?? '');
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
 
@@ -233,6 +235,8 @@ export default function ProductEditForm({ product, categories }: { product: Prod
           on_sale: onSale,
           price_mxn: Number(price),
           stock: Number(stock),
+          coa_lot: coaLot.trim() || null,
+          coa_issued_on: coaIssuedOn || null,
         }),
       });
       setSaved(true);
@@ -304,6 +308,28 @@ export default function ProductEditForm({ product, categories }: { product: Prod
 
         <div className="mt-4">
           <CoaUploader productId={product.id} currentUrl={product.coa_url} />
+          {/* Lote y fecha de emisión del COA — se muestran en la página
+              pública /certificados y en la ficha, estilo Exoma. */}
+          <div className="mt-3 grid grid-cols-2 gap-4 sm:w-96">
+            <div>
+              <label className="mb-1 block text-xs font-medium text-muted">Lote del COA</label>
+              <input
+                value={coaLot}
+                onChange={(e) => setCoaLot(e.target.value)}
+                placeholder="Ej: NXL010826001A"
+                className="w-full rounded-theme border border-border px-3 py-2 text-sm"
+              />
+            </div>
+            <div>
+              <label className="mb-1 block text-xs font-medium text-muted">Fecha de emisión</label>
+              <input
+                value={coaIssuedOn}
+                onChange={(e) => setCoaIssuedOn(e.target.value)}
+                type="date"
+                className="w-full rounded-theme border border-border px-3 py-2 text-sm"
+              />
+            </div>
+          </div>
         </div>
 
         {!hasVariants && (

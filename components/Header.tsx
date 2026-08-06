@@ -11,7 +11,7 @@ const NAV_LINKS = [
   { href: '/', label: 'Inicio' },
   { href: '/productos', label: 'Productos' },
   { href: '/nosotros', label: 'Nosotros' },
-  { href: '/#cumplimiento', label: 'Certificados' },
+  { href: '/certificados', label: 'Certificados' },
   { href: '/herramientas', label: 'Herramientas' },
 ];
 
@@ -38,11 +38,14 @@ export default function Header() {
           <Image src="/logo.png" alt={siteConfig.brand.name} width={424} height={144} className="h-14 w-auto" priority />
         </Link>
 
-        <nav className="hidden items-center gap-3 text-xs font-bold uppercase tracking-wide text-ink md:flex">
+        {/* flex-1 + gap generoso: el nav se estira para ocupar el espacio
+            entre el logo y los íconos, en vez de quedar apretado al centro
+            con huecos blancos a los lados. */}
+        <nav className="hidden flex-1 items-center justify-center gap-4 px-6 text-[13px] font-bold uppercase tracking-wide text-ink md:flex lg:gap-6">
           {NAV_LINKS.map((link, i) => (
-            <span key={link.href} className="flex items-center gap-3">
+            <span key={link.href} className="flex items-center gap-4 lg:gap-6">
               {i > 0 && <span className="text-primary">•</span>}
-              <Link href={link.href} className="hover:text-primary">{link.label}</Link>
+              <Link href={link.href} className="whitespace-nowrap hover:text-primary">{link.label}</Link>
             </span>
           ))}
           <span className="text-primary">•</span>
@@ -50,7 +53,7 @@ export default function Header() {
           {/* Dropdown de AYUDA — se abre al pasar el mouse (group-hover),
               igual que el patrón de swisschems.is. */}
           <div className="group relative">
-            <button className="flex items-center gap-1 py-2 uppercase hover:text-primary">
+            <button className="flex items-center gap-1 whitespace-nowrap py-2 uppercase hover:text-primary">
               Ayuda
               <ChevronDown size={13} className="transition-transform duration-200 group-hover:rotate-180" />
             </button>

@@ -82,8 +82,12 @@ export default function ProductPurchaseBox({
           coaUrl={product.coa_url}
           purity={product.purity}
           productName={product.name}
+          lot={product.coa_lot}
           whatsappNumber={whatsappNumber}
         />
+        <a href="/certificados" className="mt-2 inline-block text-xs font-semibold text-primary">
+          Ver todos los certificados →
+        </a>
       </div>
 
       <div className="mb-4 flex items-center gap-3">

@@ -23,6 +23,8 @@ export type Product = {
   stock: number;
   image_url: string | null;
   coa_url: string | null;
+  coa_lot: string | null;
+  coa_issued_on: string | null;
   on_sale: boolean;
   long_description: string | null;
   properties: ProductProperty[] | null;

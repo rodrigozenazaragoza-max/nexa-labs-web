@@ -4,7 +4,7 @@ import { createServiceRoleClient } from '@/lib/supabase/server';
 export async function PATCH(req: Request, { params }: { params: { id: string } }) {
   const body = await req.json();
 
-  const allowed = ['name', 'short_description', 'category', 'purity', 'on_sale', 'price_mxn', 'stock', 'image_url'];
+  const allowed = ['name', 'short_description', 'category', 'purity', 'on_sale', 'price_mxn', 'stock', 'image_url', 'coa_lot', 'coa_issued_on'];
   const update: Record<string, unknown> = {};
   for (const key of allowed) {
     if (key in body) update[key] = body[key];

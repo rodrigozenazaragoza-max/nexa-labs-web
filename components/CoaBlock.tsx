@@ -13,11 +13,13 @@ export default function CoaBlock({
   coaUrl,
   purity,
   productName,
+  lot,
   whatsappNumber,
 }: {
   coaUrl: string | null;
   purity: string;
   productName?: string;
+  lot?: string | null;
   whatsappNumber?: string;
 }) {
   const shell =
@@ -36,7 +38,9 @@ export default function CoaBlock({
           {icon}
           <div>
             <p className="text-sm font-semibold text-ink">Ver Certificado de Análisis (COA)</p>
-            <p className="text-xs text-muted">{purity} de pureza por HPLC · verificable por lote</p>
+            <p className="text-xs text-muted">
+              {purity} de pureza por HPLC · {lot ? `Lote ${lot}` : 'verificable por lote'}
+            </p>
           </div>
         </div>
         <span className="flex shrink-0 items-center gap-1 text-xs font-semibold text-primary">
