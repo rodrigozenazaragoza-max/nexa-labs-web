@@ -6,6 +6,15 @@ import { siteConfig } from '@/lib/site-config';
 import { getSiteSettings, buildWhatsAppUrl } from '@/lib/get-settings';
 import type { Product } from '@/lib/types';
 
+// Recortes con transparencia real para el hero (le quitamos el fondo con
+// GrabCut, viven en public/hero/). Clave = slug del producto. Para
+// destacar un producto nuevo con el look "flotando", agrega su PNG
+// recortado aquí — si no está, se usa la foto normal en una tarjeta.
+const HERO_CUTOUTS: Record<string, string> = {
+  retatrutida: '/hero/retatrutide.png',
+  'mots-c': '/hero/mots-c.png',
+};
+
 // Hero de la home. Las fotos que se ven a la derecha vienen de los
 // productos listados en siteConfig.hero.featuredProductSlugs — cambia esa
 // lista para destacar otros productos, no hace falta tocar este archivo.
@@ -63,43 +72,41 @@ export default async function Hero() {
         </div>
 
         {ordered.length > 0 ? (
-          // Las fotos de producto no son PNGs recortados — traen su propio
-          // fondo de estudio "horneado" en la imagen (blanco/menta muy
-          // pálido), distinto al degradado del hero. Antes las tarjetas
-          // usaban bg-primary-light, que es más verde que la foto y se veía
-          // como un recuadro pegado. Ahora ponemos un "glow" radial detrás,
-          // del mismo tono pálido que trae la foto, que se difumina hacia
-          // el degradado del hero — así el frasco se siente flotando en vez
-          // de encerrado en una tarjeta.
-          <div className="relative flex h-[30rem] items-end justify-center gap-5">
-            <div
-              className="absolute inset-[-3rem] -z-10 blur-2xl"
-              style={{
-                background:
-                  'radial-gradient(ellipse 60% 65% at 50% 45%, #f6faf8 0%, rgba(246,250,248,0) 72%)',
-              }}
-            />
+          // Los frascos del hero usan recortes reales con transparencia
+          // (public/hero/*.png — le quité el fondo con GrabCut, no son las
+          // mismas fotos con fondo "horneado" que se usan en las tarjetas
+          // de producto) para que floten sobre el degradado sin tarjeta ni
+          // recuadro visible. Si agregas un producto nuevo a
+          // featuredProductSlugs, necesita su propio recorte en
+          // public/hero/ (mismo nombre que el slug) — si no existe, cae al
+          // tratamiento de tarjeta de antes para no romper la página.
+          <div className="relative flex h-[30rem] items-end justify-center gap-2">
             {ordered.slice(0, 3).map((product, i, arr) => {
-              const image = productLeadImage(product);
+              const heroImage = HERO_CUTOUTS[product.slug];
+              const fallbackImage = productLeadImage(product);
               const isCenter = i === Math.floor((arr.length - 1) / 2) && arr.length > 1;
               const height = isCenter ? 'h-[27rem]' : 'h-[21rem]';
-              const rotate = i === 0 ? '-rotate-2' : i === arr.length - 1 ? 'rotate-2' : 'rotate-0';
+              const width = isCenter ? 'w-48' : 'w-40';
               const animClass = i === 0 ? 'anim-float-bottle-1' : 'anim-float-bottle-2';
               return (
                 <Link
                   key={product.id}
                   href={`/productos/${product.slug}`}
-                  className={`relative w-44 flex-shrink-0 ${height} ${rotate} ${animClass} overflow-hidden rounded-theme shadow-xl transition-transform hover:rotate-0`}
-                  style={{ zIndex: isCenter ? 2 : 1, backgroundColor: '#f6faf8' }}
+                  className={`relative ${width} flex-shrink-0 ${height} ${animClass}`}
+                  style={{ zIndex: isCenter ? 2 : 1 }}
                 >
-                  {image ? (
+                  {heroImage ? (
                     <Image
-                      src={image}
+                      src={heroImage}
                       alt={product.name}
                       fill
-                      className="object-cover"
+                      className="object-contain drop-shadow-2xl"
                       sizes="260px"
                     />
+                  ) : fallbackImage ? (
+                    <span className="absolute inset-0 overflow-hidden rounded-theme bg-primary-light shadow-xl">
+                      <Image src={fallbackImage} alt={product.name} fill className="object-cover" sizes="260px" />
+                    </span>
                   ) : null}
                 </Link>
               );
