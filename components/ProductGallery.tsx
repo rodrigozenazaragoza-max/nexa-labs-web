@@ -1,10 +1,10 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import Image from 'next/image';
-import { TriangleAlert } from 'lucide-react';
 import SaleBadge from './SaleBadge';
 import ProductPurchaseBox from './ProductPurchaseBox';
+import StickyBuyBar from './StickyBuyBar';
 import FrequentlyBoughtTogether from './FrequentlyBoughtTogether';
 import ProductTrustRow from './ProductTrustRow';
 import { productLeadImage } from '@/lib/product-image';
@@ -41,6 +41,26 @@ export default function ProductGallery({
   // la del producto base).
   const image = selected?.image_url || productLeadImage(product);
 
+  // Muestra la barra fija de "agregar al carrito" en cuanto el botón
+  // principal de la caja de compra sale de la vista al hacer scroll hacia
+  // abajo — y la oculta de nuevo si el cliente regresa arriba. Usamos un
+  // sentinel invisible justo debajo de la caja de compra en vez de
+  // observar el botón directamente, para no tener que meter un ref dentro
+  // de ProductPurchaseBox.
+  const sentinelRef = useRef<HTMLDivElement>(null);
+  const [showSticky, setShowSticky] = useState(false);
+
+  useEffect(() => {
+    const el = sentinelRef.current;
+    if (!el) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => setShowSticky(!entry.isIntersecting && entry.boundingClientRect.top < 0),
+      { threshold: 0 }
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
+
   return (
     <>
       <div>
@@ -51,20 +71,6 @@ export default function ProductGallery({
           ) : (
             <span className="absolute inset-0 flex items-center justify-center text-sm text-muted">[ Foto de producto ]</span>
           )}
-        </div>
-
-        {/* Aviso RUO — vive aquí, debajo de la foto, en vez de una
-            etiqueta suelta encima del producto. */}
-        <div className="mt-5 rounded-theme border border-border bg-surface p-4">
-          <p className="flex items-center gap-2 text-xs font-semibold text-ink">
-            <TriangleAlert size={14} className="text-danger" /> Exclusivo para investigación
-          </p>
-          <ul className="mt-2 space-y-1 text-xs text-muted">
-            <li>• Not for Human or Animal Use — solo uso en laboratorio.</li>
-            <li>• Manéjalo únicamente personal calificado, con equipo de protección.</li>
-            <li>• No es un medicamento, alimento ni cosmético.</li>
-            <li>• Cada lote incluye Certificado de Análisis (COA) verificable.</li>
-          </ul>
         </div>
       </div>
 
@@ -86,12 +92,21 @@ export default function ProductGallery({
             selected={selected}
             onSelectedChange={setSelectedId}
           />
+          <div ref={sentinelRef} />
         </div>
 
         {related && related.length > 0 && <FrequentlyBoughtTogether products={related} />}
 
         <ProductTrustRow />
       </div>
+
+      <StickyBuyBar
+        product={product}
+        variants={variants}
+        selected={selected}
+        onSelectedChange={setSelectedId}
+        visible={showSticky}
+      />
     </>
   );
 }

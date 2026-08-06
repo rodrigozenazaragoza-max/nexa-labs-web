@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
+import { ShoppingCart, Check } from 'lucide-react';
 import { useCart } from '@/lib/cart-context';
 import { productLeadImage } from '@/lib/product-image';
 import { formatMxn } from '@/lib/format';
@@ -55,7 +56,7 @@ export default function ProductCard({ product }: { product: Product }) {
 
       <div className="p-4">
         <Link href={`/productos/${product.slug}`}>
-          <span className="mb-2 inline-block rounded-full bg-primary-light px-2.5 py-0.5 text-[11px] font-semibold text-primary-dark">
+          <span className="mb-2 inline-block rounded-full bg-accent-light px-2.5 py-0.5 text-[11px] font-semibold text-accent">
             {product.category}
           </span>
           <h3 className="font-heading text-sm font-semibold text-ink">{product.name}</h3>
@@ -77,14 +78,17 @@ export default function ProductCard({ product }: { product: Product }) {
           />
         )}
 
-        <div className="mt-3 flex items-center justify-between">
-          <span className="font-price text-sm text-ink">${formatMxn(price)} MXN</span>
+        <div className="mt-3 flex items-center justify-between gap-2">
+          <span className="font-price text-sm leading-tight text-ink">
+            ${formatMxn(price)} <span className="text-xs">MXN</span>
+          </span>
           <button
             onClick={handleAdd}
             disabled={outOfStock}
-            className="rounded-theme bg-primary px-4 py-2 text-xs font-semibold text-white transition hover:bg-primary-dark disabled:opacity-40"
+            aria-label="Agregar al carrito"
+            className="flex h-10 w-10 shrink-0 items-center justify-center rounded-theme bg-primary text-white transition hover:bg-primary-dark disabled:opacity-40"
           >
-            {added ? 'Agregado ✓' : 'Agregar'}
+            {added ? <Check size={16} /> : <ShoppingCart size={16} />}
           </button>
         </div>
       </div>

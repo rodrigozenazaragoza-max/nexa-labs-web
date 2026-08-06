@@ -20,6 +20,8 @@ const config: Config = {
         danger: 'var(--color-danger)',
         'danger-bg': 'var(--color-danger-bg)',
         sale: 'var(--color-sale)',
+        accent: 'var(--color-accent)',
+        'accent-light': 'var(--color-accent-light)',
       },
       fontFamily: {
         heading: ['var(--font-heading)'],

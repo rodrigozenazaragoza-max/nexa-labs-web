@@ -1,4 +1,5 @@
 import { ShieldCheck, FlaskConical, Lock, Truck, PackageCheck, TestTube2, Headset } from 'lucide-react';
+import PaymentLogos from './PaymentLogos';
 
 // Fila de confianza estilo SwissChems: 3 badges + métodos de pago +
 // 4 accesos rápidos (envío, devoluciones, lab tested, soporte).
@@ -31,13 +32,7 @@ export default function ProductTrustRow() {
         <p className="mb-2 flex items-center gap-1.5 text-xs font-semibold text-ink">
           <Lock size={13} /> Métodos de pago aceptados
         </p>
-        <div className="flex flex-wrap gap-2">
-          {['VISA', 'MASTERCARD', 'AMEX', 'OXXO', 'TRANSFERENCIA'].map((m) => (
-            <span key={m} className="rounded border border-border bg-white px-2.5 py-1 text-[10px] font-bold tracking-wide text-muted">
-              {m}
-            </span>
-          ))}
-        </div>
+        <PaymentLogos />
         <p className="mt-2 text-[11px] text-muted">Tu información está protegida con cifrado de 256 bits.</p>
       </div>
 

@@ -32,7 +32,9 @@ export default async function ProductPage({ params }: { params: { slug: string }
     .limit(12);
 
   return (
-    <div>
+    <div className="pb-20">
+      {/* pb-20: espacio para que la barra fija de "agregar al carrito" no
+          tape el final de la página cuando el cliente llega hasta abajo. */}
       {/* Aviso de uso — estilo SwissChems, arriba de todo */}
       <div className="border-b border-danger/20 bg-danger-bg px-6 py-3 text-center">
         <p className="flex flex-wrap items-center justify-center gap-1.5 text-xs font-semibold text-danger">
@@ -44,15 +46,15 @@ export default async function ProductPage({ params }: { params: { slug: string }
         </p>
       </div>
 
-      <div className="mx-auto flex max-w-6xl items-center justify-between px-6 pt-6 text-xs text-muted">
-        <div className="flex flex-wrap items-center gap-1.5">
+      <div className="mx-auto flex max-w-6xl items-center justify-between px-6 pt-6 text-xs">
+        <div className="flex flex-wrap items-center gap-1.5 font-medium text-ink">
           <Link href="/" className="hover:text-primary">Inicio</Link>
-          <span>/</span>
+          <span className="text-muted">/</span>
           <Link href="/productos" className="hover:text-primary">Productos</Link>
-          <span>/</span>
+          <span className="text-muted">/</span>
           <span>{product.category}</span>
-          <span>/</span>
-          <span className="font-medium text-ink">{product.name}</span>
+          <span className="text-muted">/</span>
+          <span className="font-semibold text-ink">{product.name}</span>
         </div>
         <Link href="/productos" className="flex items-center gap-1 font-semibold text-primary">
           <ChevronLeft size={14} /> Volver al catálogo

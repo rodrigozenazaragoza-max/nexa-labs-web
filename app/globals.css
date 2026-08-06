@@ -22,6 +22,11 @@
   --color-danger: #b91c1c;
   --color-danger-bg: #fee2e2;
   --color-sale: #e0292f;
+  /* Acento navy — solo para las etiquetas de categoría en las tarjetas de
+     producto (Metabolismo, Recuperación, etc.), para que no se vean todas
+     del mismo verde menta que el resto del sitio. */
+  --color-accent: #3730a3;
+  --color-accent-light: #eef0fd;
 
   /* Tipografía — cambia el nombre aquí y en app/layout.tsx (link de Google Fonts).
      'Jost' + 'Plus Jakarta Sans' (solo precios) igualan la tipografía de
