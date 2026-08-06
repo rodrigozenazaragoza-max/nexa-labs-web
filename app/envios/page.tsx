@@ -23,7 +23,7 @@ export default function EnviosPage() {
 
       <h2>Preparación y horarios</h2>
       <p>
-        Los pedidos confirmados antes de las [hora de corte] en un día
+        Los pedidos confirmados antes de las {siteConfig.policies.orderCutoffTime} en un día
         hábil se preparan y envían ese mismo día. Pedidos posteriores o en
         fin de semana se procesan el siguiente día hábil.
       </p>

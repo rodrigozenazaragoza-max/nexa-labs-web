@@ -63,7 +63,15 @@ export const siteConfig = {
     shippingDaysMin: 1,
     shippingDaysMax: 4,
     returnWindowDays: 30,
-    jurisdiction: '[Ciudad, Estado — jurisdicción de tu contrato/empresa]',
+    // ⚠️ DATOS LEGALES — llénalos con la información real de tu empresa
+    // antes de considerar los Términos como definitivos. Mientras estén
+    // vacíos, la página de Términos muestra un aviso amarillo señalándolo.
+    legalName: '', // ej. 'Nexa Labs S.A. de C.V.'
+    legalAddress: '', // ej. 'Hermosillo, Sonora, México'
+    jurisdiction: '', // ej. 'Hermosillo, Sonora'
+    termsUpdated: '6 de agosto de 2026',
+    // Hora límite para que un pedido salga el mismo día hábil.
+    orderCutoffTime: '5:00 PM',
   },
   freeShippingThresholdMxn: 1999,
 };

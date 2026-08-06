@@ -24,11 +24,13 @@ export default function ProductPurchaseBox({
   variants,
   selected,
   onSelectedChange,
+  whatsappNumber,
 }: {
   product: Product;
   variants: ProductVariant[];
   selected: ProductVariant | null;
   onSelectedChange: (id: string) => void;
+  whatsappNumber?: string;
 }) {
   const hasVariants = variants.length > 0;
 
@@ -73,11 +75,16 @@ export default function ProductPurchaseBox({
         </div>
       )}
 
-      {product.coa_url && (
-        <div className="mb-5">
-          <CoaBlock coaUrl={product.coa_url} purity={product.purity} />
-        </div>
-      )}
+      {/* Siempre visible, haya PDF de COA o no — si no lo hay, el bloque
+          ofrece pedirlo por WhatsApp en vez de desaparecer. */}
+      <div className="mb-5">
+        <CoaBlock
+          coaUrl={product.coa_url}
+          purity={product.purity}
+          productName={product.name}
+          whatsappNumber={whatsappNumber}
+        />
+      </div>
 
       <div className="mb-4 flex items-center gap-3">
         <span className="text-xs font-semibold uppercase tracking-wide text-muted">Cantidad</span>

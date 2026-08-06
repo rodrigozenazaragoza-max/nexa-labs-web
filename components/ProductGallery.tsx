@@ -22,9 +22,11 @@ import type { Product } from '@/lib/types';
 export default function ProductGallery({
   product,
   related,
+  whatsappNumber,
 }: {
   product: Product;
   related: Product[];
+  whatsappNumber?: string;
 }) {
   const variants = useMemo(
     () => [...(product.variants ?? [])].sort((a, b) => a.sort_order - b.sort_order),
@@ -79,10 +81,6 @@ export default function ProductGallery({
         <div className="mt-5">
           <ProductQuickLinks />
         </div>
-
-        <div className="mt-4">
-          <ProductTrustBadges />
-        </div>
       </div>
 
       <div>
@@ -102,13 +100,20 @@ export default function ProductGallery({
             variants={variants}
             selected={selected}
             onSelectedChange={setSelectedId}
+            whatsappNumber={whatsappNumber}
           />
           <div ref={sentinelRef} />
         </div>
 
         {related && related.length > 0 && <FrequentlyBoughtTogether products={related} />}
 
+        {/* Métodos de pago + badges de confianza, uno debajo del otro y del
+            mismo ancho, para que el cierre de la columna se vea uniforme. */}
         <ProductTrustRow />
+
+        <div className="mt-4">
+          <ProductTrustBadges />
+        </div>
       </div>
 
       <StickyBuyBar

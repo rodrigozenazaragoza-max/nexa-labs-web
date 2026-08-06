@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { ChevronLeft } from 'lucide-react';
 import { notFound } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
+import { getSiteSettings } from '@/lib/get-settings';
 import ProductGallery from '@/components/ProductGallery';
 import ProductTabs from '@/components/ProductTabs';
 import ProductCarousel from '@/components/ProductCarousel';
@@ -16,6 +17,8 @@ export default async function ProductPage({ params }: { params: { slug: string }
     .single();
 
   if (!product) return notFound();
+
+  const settings = await getSiteSettings(supabase);
 
   const { data: related } = await supabase
     .from('products')
@@ -67,7 +70,11 @@ export default async function ProductPage({ params }: { params: { slug: string }
       </div>
 
       <div className="mx-auto grid max-w-6xl grid-cols-1 gap-10 px-6 py-8 md:grid-cols-2">
-        <ProductGallery product={product as Product} related={(related ?? []) as Product[]} />
+        <ProductGallery
+          product={product as Product}
+          related={(related ?? []) as Product[]}
+          whatsappNumber={settings.whatsappNumber}
+        />
       </div>
 
       <ProductTabs product={product as Product} />
