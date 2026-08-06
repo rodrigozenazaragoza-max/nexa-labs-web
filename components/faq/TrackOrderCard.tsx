@@ -85,9 +85,13 @@ export default function TrackOrderCard({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  // Mensaje de WhatsApp pre-escrito con el pedido y el correo ya incluidos,
+  // para que el representante identifique el asunto sin preguntar nada.
   const supportWaUrl = whatsappNumber
     ? `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(
-        `Hola, no encuentro mi pedido${orderNumber ? ` ${orderNumber}` : ''} en el rastreador. ¿Me ayudan?`
+        `Hola, soporte Nexa Labs. Estoy intentando rastrear mi pedido y dice que no lo encuentra. ¿Me ayudan por favor?\n\n` +
+          `Número de pedido: ${orderNumber || '(no lo tengo a la mano)'}\n` +
+          `Correo de la compra: ${email || '(no lo tengo a la mano)'}`
       )}`
     : null;
 
@@ -122,6 +126,12 @@ export default function TrackOrderCard({
           {loading ? 'Buscando…' : 'Rastrear'}
         </button>
       </form>
+
+      <p className="mt-3 text-xs text-muted">
+        Después de realizar tu pedido, espera aproximadamente 12 horas para poder
+        rastrearlo — tu paquete necesita ser preparado y despachado antes de
+        aparecer aquí.
+      </p>
 
       {error && (
         <p className="mt-4 rounded-theme border border-danger/30 bg-danger/5 px-4 py-3 text-sm text-danger">
