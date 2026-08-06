@@ -65,7 +65,11 @@ export default function ProductGallery({
 
   return (
     <>
-      <div>
+      {/* Columna izquierda pegajosa: la foto y los accesos rápidos siguen al
+          cliente mientras hace scroll por la columna de info (que es mucho
+          más larga). Así se elimina el hueco blanco en vez de solo taparlo,
+          y la foto del producto nunca se pierde de vista. */}
+      <div className="self-start md:sticky md:top-24">
         <div className="relative aspect-square overflow-hidden rounded-theme border border-border bg-primary-light">
           {product.on_sale && <SaleBadge />}
           {image ? (
@@ -75,11 +79,12 @@ export default function ProductGallery({
           )}
         </div>
 
-        {/* Accesos rápidos debajo de la foto — rellenan el hueco que dejaba
-            la columna izquierda (más corta que la de info) y con eso las
-            tabs de Overview suben en vez de flotar tras un espacio blanco. */}
         <div className="mt-5">
           <ProductQuickLinks />
+        </div>
+
+        <div className="mt-4">
+          <ProductTrustBadges />
         </div>
       </div>
 
@@ -107,13 +112,7 @@ export default function ProductGallery({
 
         {related && related.length > 0 && <FrequentlyBoughtTogether products={related} />}
 
-        {/* Métodos de pago + badges de confianza, uno debajo del otro y del
-            mismo ancho, para que el cierre de la columna se vea uniforme. */}
         <ProductTrustRow />
-
-        <div className="mt-4">
-          <ProductTrustBadges />
-        </div>
       </div>
 
       <StickyBuyBar
