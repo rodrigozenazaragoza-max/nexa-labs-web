@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import { Droplets, Syringe, FlaskConical, Snowflake, TriangleAlert } from 'lucide-react';
 import SectionHeader from '@/components/SectionHeader';
-import ReconstitutionCalculator from '@/components/tools/ReconstitutionCalculator';
+import ReconstitutionCalculator, { type CalcProduct } from '@/components/tools/ReconstitutionCalculator';
 import SupportContactCard from '@/components/SupportContactCard';
 import { siteConfig } from '@/lib/site-config';
 import { createClient } from '@/lib/supabase/server';
@@ -84,10 +84,40 @@ const RATIOS = [
   { peptide: 'Ipamorelina', vial: '5 mg', water: '2 mL', conc: '2.5 mg/mL', perUnit: '25 mcg' },
 ];
 
+// Saca los mg de una etiqueta de presentación ("5 mg", "10 mg (5+5)",
+// "600 mg"). El total es el número que va antes de "mg" — en las mezclas,
+// el paréntesis solo desglosa cómo se reparte ese mismo total.
+function parseMg(label: string): number | null {
+  const match = label.match(/^([\d.]+)\s*mg/i);
+  if (!match) return null; // descarta presentaciones en ml (ej. agua bacteriostática)
+  const mg = parseFloat(match[1]);
+  return mg > 0 ? mg : null;
+}
+
 export default async function CalculadoraPage() {
   const supabase = createClient();
   const headerImage = await getSectionHeaderImage(supabase);
   const settings = await getSiteSettings(supabase);
+
+  // Catálogo real para el selector de péptido — cada producto con las
+  // presentaciones que de verdad vendemos. Se excluye el agua
+  // bacteriostática (es el diluyente, no un péptido a reconstituir).
+  const { data: rawProducts } = await supabase
+    .from('products')
+    .select('name, slug, variants:product_variants(label, sort_order)')
+    .neq('slug', siteConfig.diluent.slug)
+    .order('name');
+
+  const calcProducts: CalcProduct[] = (rawProducts ?? [])
+    .map((p: any) => ({
+      name: p.name,
+      slug: p.slug,
+      variants: [...(p.variants ?? [])]
+        .sort((a: any, b: any) => a.sort_order - b.sort_order)
+        .map((v: any) => ({ label: v.label, mg: parseMg(v.label) }))
+        .filter((v: any): v is { label: string; mg: number } => v.mg !== null),
+    }))
+    .filter((p) => p.variants.length > 0);
 
   return (
     <div>
@@ -134,9 +164,10 @@ export default async function CalculadoraPage() {
         <section id="calculadora" className="mt-14 scroll-mt-24">
           <h2 className="font-heading text-h3 font-bold text-ink">La calculadora</h2>
           <p className="mb-6 mt-1 text-sm text-muted">
-            Cuatro datos y listo. Todo se calcula al instante en tu navegador.
+            Cuatro pasos y listo. Elige tu péptido de nuestro catálogo, dinos cuánta agua le vas a
+            agregar, y te decimos exactamente hasta qué rayita llenar tu jeringa.
           </p>
-          <ReconstitutionCalculator />
+          <ReconstitutionCalculator products={calcProducts} />
         </section>
 
         {/* ---------- Cómo funciona la matemática ---------- */}
