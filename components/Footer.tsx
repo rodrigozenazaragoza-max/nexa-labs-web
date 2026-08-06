@@ -77,17 +77,17 @@ export default function Footer({ whatsappNumber, whatsappMessage }: { whatsappNu
       <div className="border-t border-primary/15">
         <div id="cumplimiento" className="mx-auto max-w-7xl px-6 py-6">
           <h4 className="mb-2 text-xs font-bold uppercase tracking-wide text-primary-dark">Cumplimiento</h4>
-          <ul className="max-w-3xl space-y-1.5 text-[11px] leading-relaxed text-muted">
+          <ul className="max-w-3xl space-y-1.5 text-xs leading-relaxed text-muted">
             <li>• Etiquetado &quot;For Research Use Only — Not for Human or Animal Use&quot; en cada producto.</li>
             <li>• Ninguna página incluye dosis, vía de administración ni beneficios de salud.</li>
             <li>• Nos reservamos el derecho de rechazar pedidos con intención aparente de uso humano.</li>
           </ul>
-          <p className="mt-4 max-w-2xl text-[11px] leading-relaxed text-muted">
+          <p className="mt-4 max-w-2xl text-xs leading-relaxed text-muted">
             {siteConfig.brand.name} — {siteConfig.contact.address}. Los productos son compuestos de
             referencia para investigación científica (RUO). No son medicamentos, suplementos ni
             productos de consumo humano.
           </p>
-          <p className="mt-3 text-[11px] text-muted/80">© {new Date().getFullYear()} {siteConfig.brand.name}. Todos los derechos reservados.</p>
+          <p className="mt-3 text-xs text-muted/80">© {new Date().getFullYear()} {siteConfig.brand.name}. Todos los derechos reservados.</p>
         </div>
       </div>
     </footer>

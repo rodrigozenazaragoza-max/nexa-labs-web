@@ -58,7 +58,7 @@ export default async function HerramientasPage() {
                   <tool.icon size={20} />
                 </span>
                 {tool.tag && (
-                  <span className="rounded-full bg-accent-light px-2.5 py-0.5 text-[11px] font-semibold text-accent">
+                  <span className="rounded-full bg-accent-light px-2.5 py-0.5 text-xs font-semibold text-accent">
                     {tool.tag}
                   </span>
                 )}

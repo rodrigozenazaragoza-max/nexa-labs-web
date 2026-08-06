@@ -41,11 +41,11 @@ export default async function MisPedidosPage() {
                 <div className="flex flex-wrap items-center justify-between gap-2">
                   <div>
                     <p className="font-mono text-sm font-semibold text-ink">{o.order_number}</p>
-                    <p className="text-[11px] text-muted">
+                    <p className="text-xs text-muted">
                       {new Date(o.created_at).toLocaleDateString('es-MX', { day: 'numeric', month: 'long', year: 'numeric' })}
                     </p>
                   </div>
-                  <span className={`rounded-full px-3 py-1 text-[11px] font-semibold ${status.className}`}>{status.label}</span>
+                  <span className={`rounded-full px-3 py-1 text-xs font-semibold ${status.className}`}>{status.label}</span>
                 </div>
 
                 <div className="mt-3 divide-y divide-border border-t border-border">
@@ -60,7 +60,7 @@ export default async function MisPedidosPage() {
                 </div>
 
                 <div className="mt-3 flex flex-wrap items-center justify-between gap-3 border-t border-border pt-3">
-                  <p className="flex items-center gap-1.5 text-[11px] text-muted">
+                  <p className="flex items-center gap-1.5 text-xs text-muted">
                     <MapPin size={12} /> {o.shipping_address}
                   </p>
                   <p className="font-price text-sm text-ink">Total: ${formatMxn(o.total_mxn)} MXN</p>

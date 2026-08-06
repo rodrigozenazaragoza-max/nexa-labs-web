@@ -91,7 +91,7 @@ export default function CoaLibrary({
                   <Link href={`/productos/${e.slug}`} className="text-sm font-semibold text-ink hover:text-primary">
                     {e.name}
                   </Link>
-                  <span className="rounded-full bg-accent-light px-2 py-0.5 text-[10px] font-semibold text-accent">
+                  <span className="rounded-full bg-accent-light px-2 py-0.5 text-[11px] font-semibold text-accent">
                     {e.category}
                   </span>
                 </div>

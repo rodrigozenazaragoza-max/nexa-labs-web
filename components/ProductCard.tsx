@@ -56,18 +56,18 @@ export default function ProductCard({ product }: { product: Product }) {
 
       <div className="p-4">
         <Link href={`/productos/${product.slug}`}>
-          <span className="mb-2 inline-block rounded-full bg-accent-light px-2.5 py-0.5 text-[11px] font-semibold text-accent">
+          <span className="mb-2 inline-block rounded-full bg-accent-light px-2.5 py-0.5 text-xs font-semibold text-accent">
             {product.category}
           </span>
           <h3 className="font-heading text-sm font-semibold text-ink">{product.name}</h3>
         </Link>
 
         {!outOfStock ? (
-          <p className="mt-1 flex items-center gap-1.5 text-[11px] text-muted">
+          <p className="mt-1 flex items-center gap-1.5 text-xs text-muted">
             <span className="h-1.5 w-1.5 rounded-full bg-primary" /> {stock} disponibles
           </p>
         ) : (
-          <p className="mt-1 text-[11px] font-medium text-danger">Agotado</p>
+          <p className="mt-1 text-xs font-medium text-danger">Agotado</p>
         )}
 
         {hasVariants && (

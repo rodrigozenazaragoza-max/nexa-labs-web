@@ -32,7 +32,7 @@ function CardBrandBadge({ brand }: { brand: string }) {
   const b = (brand || '').toLowerCase();
   if (b === 'visa') {
     return (
-      <span className="flex h-6 w-10 items-center justify-center rounded bg-[#1a1f71] text-[10px] font-bold italic text-white">
+      <span className="flex h-6 w-10 items-center justify-center rounded bg-[#1a1f71] text-[11px] font-bold italic text-white">
         VISA
       </span>
     );
@@ -49,7 +49,7 @@ function CardBrandBadge({ brand }: { brand: string }) {
   }
   if (b === 'amex' || b === 'american express') {
     return (
-      <span className="flex h-6 w-10 items-center justify-center rounded bg-[#2671b9] text-[9px] font-bold text-white">
+      <span className="flex h-6 w-10 items-center justify-center rounded bg-[#2671b9] text-[11px] font-bold text-white">
         AMEX
       </span>
     );
@@ -327,7 +327,7 @@ export default function CardCapture({ name, email, phone, onTokenChange, onConfi
               </span>
               <span className="ml-2 text-muted">{currentCard.name}</span>
               {currentCard.default && (
-                <span className="ml-2 rounded-full bg-primary/10 px-2 py-0.5 text-[10px] font-semibold text-primary">
+                <span className="ml-2 rounded-full bg-primary/10 px-2 py-0.5 text-[11px] font-semibold text-primary">
                   Predeterminada
                 </span>
               )}

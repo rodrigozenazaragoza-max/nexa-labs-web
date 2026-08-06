@@ -181,7 +181,7 @@ export default function TrackOrderCard({
                       <span
                         className={`h-2.5 w-2.5 rounded-full ${active ? 'bg-primary' : 'bg-border'}`}
                       />
-                      <span className={`mt-1 text-[10px] font-semibold ${active ? 'text-ink' : 'text-muted'}`}>
+                      <span className={`mt-1 text-[11px] font-semibold ${active ? 'text-ink' : 'text-muted'}`}>
                         {step.label}
                       </span>
                     </div>

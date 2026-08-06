@@ -97,7 +97,7 @@ export default async function NosotrosPage() {
           {stats.map((s) => (
             <div key={s.label} className="rounded-theme border border-border p-5 text-center">
               <p className="font-price text-2xl text-primary">{s.value}</p>
-              <p className="mt-1 text-[11px] uppercase tracking-wide text-muted">{s.label}</p>
+              <p className="mt-1 text-xs uppercase tracking-wide text-muted">{s.label}</p>
             </div>
           ))}
         </div>

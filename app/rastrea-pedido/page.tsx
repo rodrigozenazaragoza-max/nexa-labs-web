@@ -44,7 +44,7 @@ export default async function RastreaPedidoPage({
                 <s.icon size={20} />
               </span>
               <p className="text-xs font-bold text-ink">{s.title}</p>
-              <p className="mt-1 text-[11px] leading-relaxed text-muted">{s.desc}</p>
+              <p className="mt-1 text-xs leading-relaxed text-muted">{s.desc}</p>
             </div>
           ))}
         </div>

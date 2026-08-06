@@ -288,9 +288,9 @@ export default function CheckoutPage() {
                 />
               </div>
               {phoneTouched && phoneError ? (
-                <p className="mt-1 text-[11px] text-danger">{phoneError}</p>
+                <p className="mt-1 text-xs text-danger">{phoneError}</p>
               ) : (
-                <p className="mt-1 text-[11px] text-muted">Solo para rastreo por WhatsApp.</p>
+                <p className="mt-1 text-xs text-muted">Solo para rastreo por WhatsApp.</p>
               )}
             </div>
           </section>
@@ -328,10 +328,10 @@ export default function CheckoutPage() {
                 onChange={(e) => setPostalCode(e.target.value.replace(/\D/g, ''))}
                 placeholder="5 dígitos"
               />
-              {cpStatus === 'loading' && <p className="mt-1 text-[11px] text-muted">Buscando...</p>}
-              {cpStatus === 'found' && <p className="mt-1 text-[11px] text-primary">{city}, {MX_STATES.find((s) => s.code === state)?.name}</p>}
+              {cpStatus === 'loading' && <p className="mt-1 text-xs text-muted">Buscando...</p>}
+              {cpStatus === 'found' && <p className="mt-1 text-xs text-primary">{city}, {MX_STATES.find((s) => s.code === state)?.name}</p>}
               {cpStatus === 'not-found' && (
-                <p className="mt-1 text-[11px] text-muted">No encontramos ese código postal — llena Estado y Ciudad manualmente.</p>
+                <p className="mt-1 text-xs text-muted">No encontramos ese código postal — llena Estado y Ciudad manualmente.</p>
               )}
             </div>
 
@@ -426,7 +426,7 @@ export default function CheckoutPage() {
               {loading ? 'Procesando...' : `Pagar $${formatMxn(finalTotalMxn)} MXN`}
             </button>
 
-            <p className="text-center text-[11px] text-muted">
+            <p className="text-center text-xs text-muted">
               ¿Prefieres confirmar el pedido por WhatsApp?{' '}
               <a
                 href={`https://wa.me/${siteConfig.contact.whatsappNumber}`}
@@ -455,7 +455,7 @@ export default function CheckoutPage() {
                   </div>
                   <div className="flex-1">
                     <p className="text-xs font-medium text-ink">{item.product.name}</p>
-                    {item.variant && <p className="text-[11px] text-muted">{item.variant.label}</p>}
+                    {item.variant && <p className="text-xs text-muted">{item.variant.label}</p>}
                     <div className="mt-1 flex items-center gap-2">
                       <button
                         type="button"
@@ -465,7 +465,7 @@ export default function CheckoutPage() {
                       >
                         −
                       </button>
-                      <span className="min-w-[14px] text-center text-[11px] text-muted">{item.qty}</span>
+                      <span className="min-w-[14px] text-center text-xs text-muted">{item.qty}</span>
                       <button
                         type="button"
                         onClick={() => setQty(item.key, item.qty + 1)}
@@ -477,7 +477,7 @@ export default function CheckoutPage() {
                       <button
                         type="button"
                         onClick={() => removeItem(item.key)}
-                        className="ml-1 text-[11px] text-muted underline"
+                        className="ml-1 text-xs text-muted underline"
                       >
                         Quitar
                       </button>

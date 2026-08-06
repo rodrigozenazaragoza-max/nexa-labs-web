@@ -89,7 +89,7 @@ export default function ProductGallery({
       </div>
 
       <div>
-        <span className="mb-2 inline-block rounded-full bg-accent-light px-2.5 py-0.5 text-[11px] font-semibold uppercase tracking-wide text-accent">
+        <span className="mb-2 inline-block rounded-full bg-accent-light px-2.5 py-0.5 text-xs font-semibold uppercase tracking-wide text-accent">
           {product.category}
         </span>
         <h1 className="font-heading text-h2 font-bold text-ink">{product.name}</h1>

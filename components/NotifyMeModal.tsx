@@ -75,7 +75,7 @@ export default function NotifyMeModal({
         ) : (
           <form onSubmit={submit} className="space-y-3">
             <label className="block">
-              <span className="mb-1 block text-[11px] font-medium uppercase tracking-wide text-muted">Nombre</span>
+              <span className="mb-1 block text-xs font-medium uppercase tracking-wide text-muted">Nombre</span>
               <div className="flex items-center gap-2 rounded-theme border border-border px-3 py-2.5">
                 <User size={14} className="text-muted" />
                 <input
@@ -87,7 +87,7 @@ export default function NotifyMeModal({
               </div>
             </label>
             <label className="block">
-              <span className="mb-1 block text-[11px] font-medium uppercase tracking-wide text-muted">Correo electrónico</span>
+              <span className="mb-1 block text-xs font-medium uppercase tracking-wide text-muted">Correo electrónico</span>
               <div className="flex items-center gap-2 rounded-theme border border-border px-3 py-2.5">
                 <Mail size={14} className="text-muted" />
                 <input
@@ -113,7 +113,7 @@ export default function NotifyMeModal({
               {status === 'loading' ? 'Guardando...' : 'Activar aviso'}
             </button>
 
-            <div className="flex items-center justify-between pt-1 text-[11px] text-muted">
+            <div className="flex items-center justify-between pt-1 text-xs text-muted">
               <span className="flex items-center gap-1"><Shield size={12} /> Sin spam, un correo por dosis</span>
               <span className="flex items-center gap-1"><PackageCheck size={12} /> Lote nuevo con COA</span>
             </div>

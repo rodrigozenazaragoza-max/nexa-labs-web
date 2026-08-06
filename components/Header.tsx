@@ -67,7 +67,7 @@ export default function Header() {
                   <item.icon size={16} className="mt-0.5 shrink-0 text-primary" />
                   <span>
                     <span className="block text-xs font-bold text-ink">{item.label}</span>
-                    <span className="block text-[11px] font-normal text-muted">{item.desc}</span>
+                    <span className="block text-xs font-normal text-muted">{item.desc}</span>
                   </span>
                 </Link>
               ))}
@@ -85,7 +85,7 @@ export default function Header() {
           <button aria-label="Carrito" onClick={openCart} className="relative">
             <ShoppingCart size={22} />
             {count > 0 && (
-              <span className="absolute -right-2 -top-2 flex h-5 w-5 items-center justify-center rounded-full bg-primary text-[11px] font-semibold text-white">
+              <span className="absolute -right-2 -top-2 flex h-5 w-5 items-center justify-center rounded-full bg-primary text-xs font-semibold text-white">
                 {count}
               </span>
             )}

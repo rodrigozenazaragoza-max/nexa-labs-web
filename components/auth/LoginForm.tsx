@@ -143,7 +143,7 @@ export default function LoginForm() {
           <div className="mb-1 flex items-center justify-between">
             <label className="block text-xs font-semibold text-muted">Contraseña</label>
             {mode === 'login' && (
-              <a href="/recuperar" className="text-[11px] font-semibold text-primary hover:underline">
+              <a href="/recuperar" className="text-xs font-semibold text-primary hover:underline">
                 ¿Olvidaste tu contraseña?
               </a>
             )}
@@ -176,12 +176,12 @@ export default function LoginForm() {
           {mode === 'login' ? 'Entrar' : 'Crear mi cuenta'}
         </button>
 
-        <p className="text-center text-[11px] text-muted">
+        <p className="text-center text-xs text-muted">
           Al continuar confirmas que usarás los productos exclusivamente para investigación
           científica y que eres mayor de edad.
         </p>
 
-        <p className="text-center text-[11px] text-muted">
+        <p className="text-center text-xs text-muted">
           Al continuar, aceptas nuestros{' '}
           <a href="/terminos" target="_blank" rel="noopener noreferrer" className="font-semibold text-primary hover:underline">
             Términos de Servicio

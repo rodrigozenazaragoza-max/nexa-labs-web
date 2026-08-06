@@ -17,7 +17,7 @@ export default function CategoriesGrid() {
                   {Icon && <Icon size={26} />}
                 </div>
                 <p className="text-xs font-semibold text-ink">{cat.name}</p>
-                <p className="mt-1 text-[11px] text-muted">{cat.desc}</p>
+                <p className="mt-1 text-xs text-muted">{cat.desc}</p>
               </div>
             );
           })}

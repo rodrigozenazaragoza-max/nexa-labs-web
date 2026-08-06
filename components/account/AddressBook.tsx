@@ -194,7 +194,7 @@ export default function AddressBook() {
                 <p className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wide text-ink">
                   <MapPin size={13} className="text-primary" /> {a.label}
                   {a.is_default && (
-                    <span className="flex items-center gap-1 rounded-full bg-primary-light px-2 py-0.5 text-[10px] font-semibold text-primary-dark">
+                    <span className="flex items-center gap-1 rounded-full bg-primary-light px-2 py-0.5 text-[11px] font-semibold text-primary-dark">
                       <Star size={9} /> Predeterminada
                     </span>
                   )}

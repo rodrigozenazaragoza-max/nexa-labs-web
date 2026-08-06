@@ -45,7 +45,7 @@ export default function SettingsForm({ whatsappNumber, whatsappMessage }: { what
             placeholder="5216221193067"
             className="w-full rounded-theme border border-border px-3 py-2 text-sm"
           />
-          <p className="mt-1 text-[11px] text-muted">Ej. México: 52 + 1 + 10 dígitos, sin espacios ni signos.</p>
+          <p className="mt-1 text-xs text-muted">Ej. México: 52 + 1 + 10 dígitos, sin espacios ni signos.</p>
         </div>
         <div>
           <label className="mb-1 block text-xs font-medium text-muted">Mensaje inicial por defecto</label>

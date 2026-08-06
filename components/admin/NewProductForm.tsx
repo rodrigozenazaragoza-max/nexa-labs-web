@@ -143,7 +143,7 @@ export default function NewProductForm({ categories }: { categories: string[] })
           <input value={stock} onChange={(e) => setStock(e.target.value)} type="number" className="w-full rounded-theme border border-border px-3 py-2 text-sm" />
         </div>
       </div>
-      <p className="mt-1.5 text-[11px] text-muted">
+      <p className="mt-1.5 text-xs text-muted">
         Si este producto va a tener varias presentaciones (5mg/10mg/etc.), déjalo así por ahora — después de crearlo podrás agregar cada presentación con su propio precio.
       </p>
 

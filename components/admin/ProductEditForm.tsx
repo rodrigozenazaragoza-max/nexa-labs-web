@@ -61,7 +61,7 @@ function ImageUploader({
             }}
           />
         </label>
-        {error && <p className="mt-1 text-[11px] text-danger">{error}</p>}
+        {error && <p className="mt-1 text-xs text-danger">{error}</p>}
       </div>
     </div>
   );
@@ -121,8 +121,8 @@ function CoaUploader({ productId, currentUrl }: { productId: string; currentUrl:
           />
         </label>
       </div>
-      {error && <p className="mt-1 text-[11px] text-danger">{error}</p>}
-      <p className="mt-1 text-[11px] text-muted">
+      {error && <p className="mt-1 text-xs text-danger">{error}</p>}
+      <p className="mt-1 text-xs text-muted">
         Al subir un PDF nuevo se reemplaza automáticamente el certificado anterior de este producto y el botón
         "Ver Certificado de Análisis" en la página del producto se actualiza solo.
       </p>
@@ -156,11 +156,11 @@ function VariantRow({ variant }: { variant: ProductVariant }) {
   return (
     <div className="grid grid-cols-1 items-end gap-3 border-b border-border py-4 last:border-b-0 sm:grid-cols-[auto_1fr_auto_auto_auto]">
       <div>
-        <label className="mb-1 block text-[11px] font-medium text-muted">Foto</label>
+        <label className="mb-1 block text-xs font-medium text-muted">Foto</label>
         <ImageUploader currentUrl={imageUrl} targetType="variant" targetId={variant.id} onUploaded={setImageUrl} />
       </div>
       <div>
-        <label className="mb-1 block text-[11px] font-medium text-muted">Presentación</label>
+        <label className="mb-1 block text-xs font-medium text-muted">Presentación</label>
         <input
           value={label}
           onChange={(e) => setLabel(e.target.value)}
@@ -169,7 +169,7 @@ function VariantRow({ variant }: { variant: ProductVariant }) {
         />
       </div>
       <div>
-        <label className="mb-1 block text-[11px] font-bold uppercase tracking-wide text-primary">💲 Precio (MXN)</label>
+        <label className="mb-1 block text-xs font-bold uppercase tracking-wide text-primary">💲 Precio (MXN)</label>
         <input
           value={price}
           onChange={(e) => setPrice(e.target.value)}
@@ -179,7 +179,7 @@ function VariantRow({ variant }: { variant: ProductVariant }) {
         />
       </div>
       <div>
-        <label className="mb-1 block text-[11px] font-medium text-muted">Stock</label>
+        <label className="mb-1 block text-xs font-medium text-muted">Stock</label>
         <input
           value={stock}
           onChange={(e) => setStock(e.target.value)}

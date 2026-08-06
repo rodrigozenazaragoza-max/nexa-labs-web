@@ -84,11 +84,11 @@ export default async function MiCuentaResumenPage() {
                 <div key={o.id} className="flex flex-wrap items-center justify-between gap-2 rounded-theme border border-border px-4 py-3">
                   <div>
                     <p className="font-mono text-xs font-semibold text-ink">{o.order_number}</p>
-                    <p className="text-[11px] text-muted">
+                    <p className="text-xs text-muted">
                       {new Date(o.created_at).toLocaleDateString('es-MX', { day: 'numeric', month: 'long', year: 'numeric' })}
                     </p>
                   </div>
-                  <span className={`rounded-full px-3 py-1 text-[11px] font-semibold ${status.className}`}>{status.label}</span>
+                  <span className={`rounded-full px-3 py-1 text-xs font-semibold ${status.className}`}>{status.label}</span>
                   <p className="font-price text-sm text-ink">${formatMxn(o.total_mxn)} MXN</p>
                 </div>
               );

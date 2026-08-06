@@ -70,14 +70,14 @@ export default async function AdminProductsPage() {
               </div>
 
               {product.on_sale && (
-                <span className="rounded-full bg-sale px-2.5 py-1 text-[10px] font-bold uppercase text-white">Oferta</span>
+                <span className="rounded-full bg-sale px-2.5 py-1 text-[11px] font-bold uppercase text-white">Oferta</span>
               )}
 
               <div className="hidden w-24 text-right sm:block">
                 <p className="font-price text-sm text-ink">${formatMxn(minPrice)}</p>
               </div>
 
-              <div className="w-20 text-right text-[11px] sm:w-28 sm:text-xs">
+              <div className="w-20 text-right text-xs sm:w-28">
                 <span className={totalStock > 0 ? 'text-primary' : 'font-medium text-danger'}>
                   {totalStock > 0 ? `${totalStock} disponibles` : 'Agotado'}
                 </span>

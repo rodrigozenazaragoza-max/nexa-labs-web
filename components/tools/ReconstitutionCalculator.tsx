@@ -141,7 +141,7 @@ export default function ReconstitutionCalculator({ products }: { products: CalcP
           />
           {listOpen && filtered.length > 0 && (
             <div className="absolute left-0 right-0 top-full z-20 mt-1.5 max-h-72 overflow-y-auto rounded-theme border border-border bg-white py-1 shadow-lg">
-              <p className="px-3 py-1.5 text-[10px] font-bold uppercase tracking-wide text-muted">
+              <p className="px-3 py-1.5 text-[11px] font-bold uppercase tracking-wide text-muted">
                 {filtered.length} péptidos en el catálogo
               </p>
               {filtered.map((p) => (
@@ -152,7 +152,7 @@ export default function ReconstitutionCalculator({ products }: { products: CalcP
                   className="flex w-full items-center justify-between px-3 py-2 text-left text-sm transition hover:bg-surface"
                 >
                   <span className="font-medium text-ink">{p.name}</span>
-                  <span className="text-[11px] text-muted">
+                  <span className="text-xs text-muted">
                     {p.variants.map((v) => v.label).join(' · ')}
                   </span>
                 </button>
@@ -391,13 +391,13 @@ function Result({
             />
           </div>
           <div
-            className="absolute -top-6 -translate-x-1/2 whitespace-nowrap rounded bg-primary-dark px-2 py-0.5 text-[11px] font-bold text-white transition-all duration-300"
+            className="absolute -top-6 -translate-x-1/2 whitespace-nowrap rounded bg-primary-dark px-2 py-0.5 text-xs font-bold text-white transition-all duration-300"
             style={{ left: `${pct}%` }}
           >
             {rounded}
           </div>
         </div>
-        <div className="mt-1.5 flex justify-between text-[11px] font-semibold text-muted">
+        <div className="mt-1.5 flex justify-between text-xs font-semibold text-muted">
           <span>0</span>
           <span>{r.syringeUnits / 2}</span>
           <span>{r.syringeUnits}</span>
@@ -429,7 +429,7 @@ function Result({
         </dl>
       </details>
 
-      <p className="mt-4 text-[11px] leading-relaxed text-muted">
+      <p className="mt-4 text-xs leading-relaxed text-muted">
         Cálculo aritmético únicamente. Nexa Labs no indica dosis ni protocolos — nuestros productos
         son exclusivamente para investigación.
       </p>
@@ -442,7 +442,7 @@ function Result({
 function Chip({ label, value }: { label: string; value: string }) {
   return (
     <div className="rounded-theme bg-white px-3 py-2">
-      <p className="text-[10px] font-bold uppercase tracking-wide text-muted">{label}</p>
+      <p className="text-[11px] font-bold uppercase tracking-wide text-muted">{label}</p>
       <p className="mt-0.5 text-xs font-semibold leading-snug text-ink">{value}</p>
     </div>
   );

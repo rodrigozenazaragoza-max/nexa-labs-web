@@ -71,7 +71,7 @@ export default function SavedAddresses({ onSelect }: Props) {
           <span className="font-semibold text-ink">
             {addr.label}
             {addr.is_default && (
-              <span className="ml-2 rounded-full bg-primary/10 px-2 py-0.5 text-[10px] font-semibold text-primary">
+              <span className="ml-2 rounded-full bg-primary/10 px-2 py-0.5 text-[11px] font-semibold text-primary">
                 Predeterminada
               </span>
             )}
@@ -81,7 +81,7 @@ export default function SavedAddresses({ onSelect }: Props) {
           </p>
         </button>
       ))}
-      <p className="text-[11px] text-muted">
+      <p className="text-xs text-muted">
         O llena una dirección nueva abajo — puedes guardarla para la próxima vez.
       </p>
     </div>

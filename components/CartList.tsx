@@ -110,7 +110,7 @@ export default function CartList({
                   </div>
                   <button
                     onClick={() => addItem(product, firstAvailable, 1)}
-                    className="rounded-theme border border-primary px-3 py-1.5 text-[11px] font-semibold text-primary"
+                    className="rounded-theme border border-primary px-3 py-1.5 text-xs font-semibold text-primary"
                   >
                     + Agregar
                   </button>

@@ -26,7 +26,7 @@ export default function FrequentlyBoughtTogether({ products }: { products: Produ
     <div className="mt-8 rounded-theme border border-border p-5">
       <div className="mb-4 flex items-center justify-between">
         <p className="font-heading text-sm font-bold text-ink">Frecuentemente comprados juntos</p>
-        <span className="flex items-center gap-1 rounded-full bg-surface px-2.5 py-1 text-[11px] font-medium text-muted">
+        <span className="flex items-center gap-1 rounded-full bg-surface px-2.5 py-1 text-xs font-medium text-muted">
           <TrendingUp size={12} /> Basado en ventas
         </span>
       </div>

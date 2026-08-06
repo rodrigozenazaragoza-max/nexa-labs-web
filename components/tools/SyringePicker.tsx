@@ -68,7 +68,7 @@ export default function SyringePicker({
           >
             <SyringeDrawing units={s.units} active={active} />
             <p className={`mt-2 text-sm font-bold ${active ? 'text-primary-dark' : 'text-ink'}`}>{s.label}</p>
-            <p className="text-[11px] text-muted">{s.sub}</p>
+            <p className="text-xs text-muted">{s.sub}</p>
           </button>
         );
       })}

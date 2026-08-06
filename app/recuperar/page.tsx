@@ -21,7 +21,7 @@ export default function RecuperarPage() {
 
         <ForgotPasswordForm />
 
-        <div className="mt-4 flex items-center justify-center gap-2 text-[11px] text-white/40">
+        <div className="mt-4 flex items-center justify-center gap-2 text-xs text-white/40">
           <ShieldCheck size={13} /> El enlace expira por seguridad después de un tiempo limitado.
         </div>
       </div>
