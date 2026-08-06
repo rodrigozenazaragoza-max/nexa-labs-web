@@ -44,10 +44,13 @@ export default function ReconstitutionCalculator({ products }: { products: CalcP
     waterMl: number;
   }>(null);
 
+  // Sin tope: se muestra TODO el catálogo (la lista tiene scroll propio).
+  // Al elegir un producto, `query` queda igual a su nombre — en ese caso no
+  // filtramos, para que la lista siga mostrando todo si vuelve a abrirla.
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
-    if (!q) return products.slice(0, 8);
-    return products.filter((p) => p.name.toLowerCase().includes(q)).slice(0, 8);
+    if (!q || products.some((p) => p.name.toLowerCase() === q)) return products;
+    return products.filter((p) => p.name.toLowerCase().includes(q));
   }, [query, products]);
 
   function pickProduct(p: CalcProduct) {
@@ -137,7 +140,10 @@ export default function ReconstitutionCalculator({ products }: { products: CalcP
             className={`absolute right-3 top-1/2 -translate-y-1/2 text-muted transition-transform ${listOpen ? 'rotate-180' : ''}`}
           />
           {listOpen && filtered.length > 0 && (
-            <div className="absolute left-0 right-0 top-full z-20 mt-1.5 max-h-60 overflow-y-auto rounded-theme border border-border bg-white py-1 shadow-lg">
+            <div className="absolute left-0 right-0 top-full z-20 mt-1.5 max-h-72 overflow-y-auto rounded-theme border border-border bg-white py-1 shadow-lg">
+              <p className="px-3 py-1.5 text-[10px] font-bold uppercase tracking-wide text-muted">
+                {filtered.length} péptidos en el catálogo
+              </p>
               {filtered.map((p) => (
                 <button
                   key={p.slug}
@@ -205,7 +211,7 @@ export default function ReconstitutionCalculator({ products }: { products: CalcP
             </button>
           ))}
         </div>
-        <p className="mt-2 text-[11px] leading-relaxed text-muted">
+        <p className="mt-2.5 text-xs font-semibold leading-relaxed text-ink">
           Más agua no cambia cuánto péptido hay en el vial — solo lo reparte en más rayitas de la
           jeringa, lo que hace más fácil medir con precisión. Lo más usado son 2 mL.
         </p>
@@ -243,7 +249,7 @@ export default function ReconstitutionCalculator({ products }: { products: CalcP
             ))}
           </div>
         </div>
-        <p className="mt-2 text-[11px] text-muted">
+        <p className="mt-2.5 text-xs font-semibold text-ink">
           1 mg = 1,000 mcg. Puedes calcular hasta 10 mg.
         </p>
       </Step>
@@ -257,7 +263,7 @@ export default function ReconstitutionCalculator({ products }: { products: CalcP
             setResult(null);
           }}
         />
-        <p className="mt-2 text-[11px] leading-relaxed text-muted">
+        <p className="mt-2.5 text-xs font-semibold leading-relaxed text-ink">
           Las tres miden igual — la marca 10 es la misma cantidad en cualquiera. La chica solo
           separa más las rayitas. ¿No sabes cuál tienes? Es casi siempre la de 100 unidades.
         </p>
@@ -349,14 +355,22 @@ function Result({
     <div className="mt-7 rounded-theme border-2 border-primary bg-primary-light/30 p-6">
       <p className="text-xs font-bold uppercase tracking-wide text-primary-dark">Tu resultado</p>
 
+      {/* Repite TODO lo que el cliente eligió dentro de la misma frase, para
+          que quede clarísimo de qué escenario salió este número. */}
       <p className="mt-3 text-lg font-semibold leading-relaxed text-ink">
-        Para sacar <span className="text-primary-dark">{r.doseLabel}</span> de {r.productName},
-        llena tu jeringa hasta la marca{' '}
-        <span className="font-price text-2xl font-bold text-primary-dark">{rounded}</span>.
+        Tu vial de <span className="text-primary-dark">{r.productName} {r.variantLabel}</span>,
+        reconstituido con <span className="text-primary-dark">{r.waterMl} mL</span> de agua
+        bacteriostática: para sacar <span className="text-primary-dark">{r.doseLabel}</span> llena
+        tu jeringa de <span className="text-primary-dark">{r.syringeUnits} unidades</span> hasta la
+        marca <span className="font-price text-2xl font-bold text-primary-dark">{rounded}</span>.
       </p>
-      <p className="mt-1 text-sm text-muted">
-        Vial de {r.variantLabel} + {r.waterMl} mL de agua · jeringa de {r.syringeUnits} unidades
-      </p>
+
+      <div className="mt-4 grid grid-cols-2 gap-2 sm:grid-cols-4">
+        <Chip label="Péptido" value={`${r.productName} ${r.variantLabel}`} />
+        <Chip label="Agua agregada" value={`${r.waterMl} mL`} />
+        <Chip label="Cantidad a sacar" value={r.doseLabel} />
+        <Chip label="Tu jeringa" value={`${r.syringeUnits} unidades`} />
+      </div>
 
       {/* Jeringa a escala con la marca señalada */}
       <div className="mt-6">
@@ -398,9 +412,9 @@ function Result({
       )}
 
       <p className="mt-5 rounded-theme bg-white px-4 py-3 text-sm text-ink">
-        Con esta preparación, tu vial rinde{' '}
+        Con esa misma preparación ({r.variantLabel} + {r.waterMl} mL de agua), tu vial rinde{' '}
         <span className="font-bold text-primary-dark">{r.dosesPerVial}</span>{' '}
-        {r.dosesPerVial === 1 ? 'extracción' : 'extracciones'} de {r.doseLabel}.
+        {r.dosesPerVial === 1 ? 'extracción' : 'extracciones'} de {r.doseLabel} antes de vaciarse.
       </p>
 
       <details className="mt-4 text-sm">
@@ -419,6 +433,17 @@ function Result({
         Cálculo aritmético únicamente. Nexa Labs no indica dosis ni protocolos — nuestros productos
         son exclusivamente para investigación.
       </p>
+    </div>
+  );
+}
+
+// Resumen visual de lo que el cliente eligió — refuerza de dónde salió el
+// número, para que no haya duda de que el resultado es SU escenario.
+function Chip({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="rounded-theme bg-white px-3 py-2">
+      <p className="text-[10px] font-bold uppercase tracking-wide text-muted">{label}</p>
+      <p className="mt-0.5 text-xs font-semibold leading-snug text-ink">{value}</p>
     </div>
   );
 }

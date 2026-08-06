@@ -129,7 +129,21 @@ export default async function CalculadoraPage() {
       />
 
       <div className="mx-auto max-w-5xl px-6 py-12">
-        <p className="max-w-2xl text-sm leading-relaxed text-muted">
+        {/* ---------- Aviso RUO — lo primero que se ve ---------- */}
+        <div className="rounded-2xl border border-danger/25 bg-[#faf6f4] px-6 py-5">
+          <p className="flex items-center gap-2 text-sm font-bold text-ink">
+            <TriangleAlert size={16} className="text-danger" />
+            <span><span className="text-danger">Importante:</span> esta herramienta es solo aritmética.</span>
+          </p>
+          <p className="mt-1.5 text-xs leading-relaxed text-muted">
+            Convierte una cantidad que tú defines en unidades de jeringa. No indica dosis, no valida
+            protocolos y no sustituye a un profesional. Todos los productos de {siteConfig.brand.name}{' '}
+            son compuestos de referencia para investigación científica (RUO): no son medicamentos,
+            alimentos ni cosméticos, y su introducción al cuerpo humano o animal está prohibida.
+          </p>
+        </div>
+
+        <p className="mt-8 max-w-2xl text-sm leading-relaxed text-muted">
           Tu vial llega como polvo. Para trabajar con él hay que devolverle el líquido — y ahí
           empieza la aritmética: cuánta agua, cuánta concentración queda, y hasta qué rayita de la
           jeringa jalar. Esta herramienta hace esa cuenta por ti, gratis y sin registro.
@@ -227,20 +241,6 @@ export default async function CalculadoraPage() {
             </Link>
           </p>
         </section>
-
-        {/* ---------- Aviso RUO ---------- */}
-        <div className="mt-14 rounded-2xl border border-danger/25 bg-[#faf6f4] px-6 py-5">
-          <p className="flex items-center gap-2 text-sm font-bold text-ink">
-            <TriangleAlert size={16} className="text-danger" />
-            <span><span className="text-danger">Importante:</span> esta herramienta es solo aritmética.</span>
-          </p>
-          <p className="mt-1.5 text-xs leading-relaxed text-muted">
-            Convierte una cantidad que tú defines en unidades de jeringa. No indica dosis, no valida
-            protocolos y no sustituye a un profesional. Todos los productos de {siteConfig.brand.name}{' '}
-            son compuestos de referencia para investigación científica (RUO): no son medicamentos,
-            alimentos ni cosméticos, y su introducción al cuerpo humano o animal está prohibida.
-          </p>
-        </div>
 
         {/* ---------- FAQ ---------- */}
         <section className="mt-14">
