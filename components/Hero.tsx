@@ -11,8 +11,8 @@ import type { Product } from '@/lib/types';
 // destacar un producto nuevo con el look "flotando", agrega su PNG
 // recortado aquí — si no está, se usa la foto normal en una tarjeta.
 const HERO_CUTOUTS: Record<string, string> = {
-  retatrutida: '/hero/retatrutide.png',
-  'mots-c': '/hero/mots-c.png',
+  retatrutida: '/hero/retatrutide-v2.png',
+  'mots-c': '/hero/mots-c-v2.png',
 };
 
 // Hero de la home. Las fotos que se ven a la derecha vienen de los
