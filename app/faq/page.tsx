@@ -126,6 +126,38 @@ export default function FaqPage() {
           ),
         },
         {
+          q: '¿Puedo crear una cuenta para guardar mis tarjetas y direcciones?',
+          searchText: 'crear cuenta guardar tarjetas direcciones checkout rapido',
+          a: (
+            <p>
+              Sí. No es obligatorio, pero si inicias sesión antes de comprar, en el checkout ya te
+              aparecen tus tarjetas y direcciones guardadas de compras anteriores — no tienes que
+              volver a capturar todo cada vez.
+            </p>
+          ),
+        },
+        {
+          q: '¿Puedo confirmar mi pedido por WhatsApp en vez de pagar con tarjeta?',
+          searchText: 'whatsapp confirmar pedido sin tarjeta',
+          a: (
+            <p>
+              Sí, en el checkout verás la opción &quot;¿Prefieres confirmar el pedido por
+              WhatsApp? Escríbenos&quot; — te atendemos directo por ahí.
+            </p>
+          ),
+        },
+        {
+          q: '¿Puedo cancelar o modificar mi pedido después de hacerlo?',
+          searchText: 'cancelar modificar pedido despues de comprar',
+          a: (
+            <p>
+              Solo mientras siga en proceso, antes de que se marque como enviado. Escríbenos lo
+              antes posible a {siteConfig.contact.email} — una vez despachado ya no se puede
+              cancelar ni modificar.
+            </p>
+          ),
+        },
+        {
           q: '¿Guardan mis datos de pago?',
           searchText: 'datos de pago tarjeta guardan seguridad',
           a: <p>No. Los datos de pago se procesan al momento de tu compra y no se guardan en nuestros servidores.</p>,
@@ -245,6 +277,28 @@ export default function FaqPage() {
             <p>
               No necesariamente. Si compras varios tipos de producto, pueden llegar en paquetes
               separados con números de rastreo distintos — es normal, no un error.
+            </p>
+          ),
+        },
+        {
+          q: '¿Qué pasa si mi pedido llega caliente por haber pasado varios días en tránsito?',
+          searchText: 'pedido caliente calor transito refrigerar envio',
+          a: (
+            <p>
+              No pasa nada. Los péptidos liofilizados (en polvo) son estables a temperatura
+              ambiente durante semanas — no necesitan hielo ni refrigeración durante el envío.
+              Mientras el polvo se vea blanco y suelto al llegar, está en buen estado.
+            </p>
+          ),
+        },
+        {
+          q: '¿Debo meter mi pedido al refrigerador apenas llega?',
+          searchText: 'refrigerar apenas llega urgente pedido',
+          a: (
+            <p>
+              No es urgente. Puedes guardarlo a temperatura ambiente los primeros días; si lo vas
+              a conservar más tiempo, ahí sí conviene refrigerarlo o congelarlo — revisa la sección
+              &quot;Péptidos: Manejo y Almacenamiento&quot; más abajo.
             </p>
           ),
         },
@@ -371,6 +425,28 @@ export default function FaqPage() {
           ),
         },
         {
+          q: '¿Qué diferencia hay entre el HPLC y la espectrometría de masas en un certificado?',
+          searchText: 'hplc espectrometria de masas diferencia coa',
+          a: (
+            <p>
+              Son dos pruebas distintas. El HPLC mide qué tan puro está el compuesto (el
+              porcentaje). La espectrometría de masas confirma que la molécula es la que dice la
+              etiqueta, verificando su peso molecular. Un COA completo idealmente incluye ambas.
+            </p>
+          ),
+        },
+        {
+          q: '¿Cada cuánto se vuelve a analizar un lote que ya está a la venta?',
+          searchText: 'cada cuanto se analiza lote reanalisis frecuencia',
+          a: (
+            <p>
+              Cada lote nuevo se analiza antes de entrar a inventario. Un lote que ya pasó ese
+              control no se vuelve a analizar salvo que cambien sus condiciones de almacenamiento —
+              el COA publicado refleja la calidad del lote al momento de su liberación.
+            </p>
+          ),
+        },
+        {
           q: '¿Qué garantía ofrecen si un resultado no coincide?',
           searchText: 'garantia resultado no coincide prueba independiente',
           a: (
@@ -416,6 +492,60 @@ export default function FaqPage() {
               A temperatura ambiente aguantan días o semanas sin abrir. Para guardarlos más tiempo
               se recomienda refrigerar (4°C), y para guardarlos mucho tiempo, congelar (-20°C) —
               siempre protegidos de la luz.
+            </p>
+          ),
+        },
+        {
+          q: '¿Qué es el agua bacteriostática y por qué se usa para reconstituir?',
+          searchText: 'agua bacteriostatica que es alcohol bencilico conservador',
+          a: (
+            <p>
+              Es agua estéril con un conservador (alcohol bencílico al 0.9%) que inhibe el
+              crecimiento microbiano. Eso le da a un vial ya reconstituido semanas de vida útil en
+              refrigeración, en vez de las 24–48 horas que duraría con agua estéril simple sin
+              conservador.
+            </p>
+          ),
+        },
+        {
+          q: '¿Puedo agitar el vial para que el polvo se disuelva más rápido?',
+          searchText: 'agitar vial disolver rapido espuma desnaturalizar',
+          a: (
+            <p>
+              No se recomienda. Agitar puede generar espuma y dañar la estructura del péptido. Lo
+              correcto es girar el vial suavemente entre las palmas hasta que se disuelva.
+            </p>
+          ),
+        },
+        {
+          q: '¿Puedo congelar un vial ya reconstituido?',
+          searchText: 'congelar vial reconstituido ciclos congelado descongelado',
+          a: (
+            <p>
+              No se recomienda. Congelar forma cristales de hielo que dañan físicamente la
+              estructura del péptido con cada ciclo de congelado/descongelado. Ya reconstituido, se
+              mantiene en refrigeración (4°C), no en congelación.
+            </p>
+          ),
+        },
+        {
+          q: '¿Cómo sé si un péptido ya no sirve?',
+          searchText: 'peptido echado a perder degradado color grumos turbio',
+          a: (
+            <p>
+              El polvo liofilizado debe verse blanco y suelto — si cambia de color, se apelmaza o
+              absorbe humedad, es señal de que se degradó. Ya reconstituido, la solución debe verse
+              transparente; si se ve turbia, con partículas o con color, no se debe usar.
+            </p>
+          ),
+        },
+        {
+          q: '¿Qué jeringa se usa para manejar los viales en laboratorio?',
+          searchText: 'jeringa insulina 29g 31g manejo vial',
+          a: (
+            <p>
+              Comúnmente una jeringa de insulina graduada (aguja 29G–31G), tanto para agregar el
+              agua bacteriostática como para medir volúmenes con precisión en el manejo del vial.
             </p>
           ),
         },
