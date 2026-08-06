@@ -28,7 +28,7 @@ export default async function Hero() {
       className="pt-[60px]"
       style={{ backgroundImage: 'linear-gradient(135deg, #FFFFFF 0%, #BEE1CE 100%)' }}
     >
-      <div className="mx-auto grid max-w-[1200px] grid-cols-1 items-center gap-10 px-5 pb-16 md:grid-cols-2">
+      <div className="mx-auto grid max-w-6xl grid-cols-1 items-center gap-10 px-6 pb-16 md:grid-cols-2">
         <div>
           <span
             className="mb-4 inline-block rounded-full bg-white px-4 py-1.5 text-xs font-extrabold uppercase tracking-wide shadow-sm"
@@ -63,36 +63,34 @@ export default async function Hero() {
         </div>
 
         {ordered.length > 0 ? (
-          // Los frascos flotan directo sobre el degradado del hero (sin
-          // tarjeta cuadrada de fondo) — la foto de cada producto trae su
-          // propio fondo de estudio "quemado" en el PNG, así que le
-          // aplicamos una máscara ovalada que difumina las esquinas hacia
-          // transparente y deja solo el frasco visible, más una sombra
-          // suave abajo para que no se sientan flotando en el vacío.
-          <div className="relative flex h-96 items-end justify-center">
-            {ordered.slice(0, 2).map((product, i) => {
+          // Las fotos de producto no son PNGs recortados — traen su propio
+          // fondo de estudio "horneado" en la imagen. En vez de forzar una
+          // máscara que asume transparencia (se veía como un halo
+          // fantasma), las mostramos como tarjetas con esquinas
+          // redondeadas y bg-primary-light detrás — mismo tratamiento que
+          // ya usa ProductCard en el resto del sitio, así que se sienten
+          // parte del mismo sistema en vez de "pegadas" mal recortadas.
+          <div className="relative flex h-96 items-end justify-center gap-4">
+            {ordered.slice(0, 3).map((product, i, arr) => {
               const image = productLeadImage(product);
-              const sizing = i === 0 ? 'h-[18rem] w-40 -mr-6' : 'h-[22rem] w-48';
+              const isCenter = i === Math.floor((arr.length - 1) / 2) && arr.length > 1;
+              const height = isCenter ? 'h-[22rem]' : 'h-[18rem]';
+              const rotate = i === 0 ? '-rotate-3' : i === arr.length - 1 ? 'rotate-3' : 'rotate-0';
               const animClass = i === 0 ? 'anim-float-bottle-1' : 'anim-float-bottle-2';
               return (
                 <Link
                   key={product.id}
                   href={`/productos/${product.slug}`}
-                  className={`relative ${sizing} ${animClass}`}
-                  style={{ zIndex: i === 0 ? 1 : 2 }}
+                  className={`relative w-36 flex-shrink-0 ${height} ${rotate} ${animClass} overflow-hidden rounded-theme bg-primary-light shadow-xl transition-transform hover:rotate-0`}
+                  style={{ zIndex: isCenter ? 2 : 1 }}
                 >
-                  <span className="absolute inset-x-3 bottom-1 h-5 rounded-full bg-ink/10 blur-md" />
                   {image ? (
                     <Image
                       src={image}
                       alt={product.name}
                       fill
-                      className="relative object-contain drop-shadow-2xl"
-                      style={{
-                        maskImage: 'radial-gradient(ellipse 36% 72% at 50% 46%, black 18%, transparent 92%)',
-                        WebkitMaskImage: 'radial-gradient(ellipse 36% 72% at 50% 46%, black 18%, transparent 92%)',
-                      }}
-                      sizes="220px"
+                      className="object-cover"
+                      sizes="200px"
                     />
                   ) : null}
                 </Link>
