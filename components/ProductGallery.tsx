@@ -6,7 +6,7 @@ import SaleBadge from './SaleBadge';
 import ProductPurchaseBox from './ProductPurchaseBox';
 import StickyBuyBar from './StickyBuyBar';
 import FrequentlyBoughtTogether from './FrequentlyBoughtTogether';
-import ProductTrustRow from './ProductTrustRow';
+import ProductTrustRow, { ProductQuickLinks } from './ProductTrustRow';
 import { productLeadImage } from '@/lib/product-image';
 import type { Product } from '@/lib/types';
 
@@ -71,6 +71,13 @@ export default function ProductGallery({
           ) : (
             <span className="absolute inset-0 flex items-center justify-center text-sm text-muted">[ Foto de producto ]</span>
           )}
+        </div>
+
+        {/* Accesos rápidos debajo de la foto — rellenan el hueco que dejaba
+            la columna izquierda (más corta que la de info) y con eso las
+            tabs de Overview suben en vez de flotar tras un espacio blanco. */}
+        <div className="mt-5">
+          <ProductQuickLinks />
         </div>
       </div>
 

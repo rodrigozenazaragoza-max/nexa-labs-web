@@ -24,7 +24,7 @@ export default function ProductTabs({ product }: { product: Product }) {
   const [active, setActive] = useState<Tab>('overview');
 
   return (
-    <section className="mx-auto max-w-6xl px-6 py-14">
+    <section className="mx-auto max-w-6xl px-6 pb-14 pt-4">
       <div className="flex flex-wrap gap-2 rounded-theme border border-border bg-surface p-2">
         {TABS.map((tab) => {
           const Icon = tab.icon;

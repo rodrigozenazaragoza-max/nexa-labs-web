@@ -23,9 +23,6 @@ export default function PaymentLogos() {
           className="h-8 w-auto rounded border border-border"
         />
       ))}
-      <span className="flex h-8 items-center justify-center rounded border border-border bg-white px-2.5 text-[10px] font-bold tracking-wide text-muted">
-        TRANSFERENCIA
-      </span>
     </div>
   );
 }
