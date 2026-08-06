@@ -75,11 +75,14 @@ export default function Header() {
           </div>
         </nav>
 
-        <div className="flex items-center gap-4 text-ink">
-          <button aria-label="Buscar" className="hidden md:block">
+        {/* Los accesos de búsqueda y cuenta también viven en móvil — antes
+            estaban ocultos con `hidden md:block`, así que desde el celular no
+            había manera de llegar a "Mi cuenta" ni de buscar. */}
+        <div className="flex items-center gap-3.5 text-ink sm:gap-4">
+          <Link href="/productos" aria-label="Buscar productos">
             <Search size={20} />
-          </button>
-          <Link href="/mi-cuenta" aria-label="Mi cuenta" className="hidden md:block">
+          </Link>
+          <Link href="/mi-cuenta" aria-label="Mi cuenta">
             <User size={20} />
           </Link>
           <button aria-label="Carrito" onClick={openCart} className="relative">

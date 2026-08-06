@@ -3,7 +3,16 @@ import { siteConfig } from '@/lib/site-config';
 
 export default function TopBar() {
   return (
-    <div className="hidden bg-primary-dark py-2 text-xs text-white md:block">
+    <>
+      {/* Versión móvil: una sola línea con la promesa de envío gratis. Antes
+          esta barra estaba oculta por completo en celular, así que quien
+          entraba desde el teléfono —la mayoría— nunca se enteraba del
+          beneficio. Se omiten correo y teléfono para no robar altura. */}
+      <div className="bg-primary-dark px-4 py-1.5 text-center text-xs font-bold text-white md:hidden">
+        Envío gratis en pedidos mayores a ${siteConfig.freeShippingThresholdMxn}
+      </div>
+
+      <div className="hidden bg-primary-dark py-2 text-xs text-white md:block">
       {/* El aviso de envío gratis va centrado en la barra completa
           (position: absolute) y el contacto anclado a la derecha — así el
           mensaje queda al centro real de la pantalla sin importar cuánto
@@ -22,6 +31,7 @@ export default function TopBar() {
           </a>
         </div>
       </div>
-    </div>
+      </div>
+    </>
   );
 }

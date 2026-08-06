@@ -33,9 +33,11 @@ export default function SectionHeader({
           <Image src={image} alt="" fill className="object-cover object-center opacity-80 blur-[1.5px]" sizes="460px" />
         </div>
       )}
-      <div className="relative mx-auto max-w-7xl px-6 py-10">
+      {/* Padding vertical reducido en móvil (py-5) — en pantalla chica este
+          banner se comía media pantalla antes de que se viera un producto. */}
+      <div className="relative mx-auto max-w-7xl px-6 py-5 sm:py-10">
         {crumbs && crumbs.length > 0 && (
-          <div className="mb-3 flex flex-wrap items-center gap-1 text-xs text-muted">
+          <div className="mb-2 flex flex-wrap items-center gap-1 text-xs text-muted sm:mb-3">
             {crumbs.map((c, i) => (
               <span key={c.label} className="flex items-center gap-1">
                 {i > 0 && <ChevronRight size={12} />}
@@ -49,11 +51,11 @@ export default function SectionHeader({
           </div>
         )}
         {eyebrow && (
-          <p className="mb-2 flex items-center gap-2 text-xs font-bold uppercase tracking-wide text-primary">
+          <p className="mb-1 flex items-center gap-2 text-xs font-bold uppercase tracking-wide text-primary sm:mb-2">
             <span className="h-3 w-0.5 bg-primary" /> {eyebrow}
           </p>
         )}
-        <h1 className="font-heading text-h2 font-bold leading-tight text-ink">{title}</h1>
+        <h1 className="font-heading text-xl font-bold leading-tight text-ink sm:text-h2">{title}</h1>
       </div>
     </div>
   );

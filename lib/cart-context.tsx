@@ -5,6 +5,13 @@ import type { CartItem, Product, ProductVariant } from './types';
 import { lineKey, itemUnitPrice } from './cart-utils';
 import { shippingCostFor } from './shipping';
 
+export type LastAdded = {
+  product: Product;
+  variant: ProductVariant | null;
+  qty: number;
+  at: number;
+};
+
 type CartContextValue = {
   items: CartItem[];
   addItem: (product: Product, variant: ProductVariant | null, qty?: number) => void;
@@ -19,6 +26,8 @@ type CartContextValue = {
   isOpen: boolean;
   openCart: () => void;
   closeCart: () => void;
+  lastAdded: LastAdded | null;
+  dismissLastAdded: () => void;
   couponInput: string;
   setCouponInput: (v: string) => void;
   appliedCoupon: string | null;
@@ -35,6 +44,10 @@ export function CartProvider({ children }: { children: ReactNode }) {
   const [hydrated, setHydrated] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
   const [couponInput, setCouponInput] = useState('');
+  // Último producto agregado, para el aviso flotante en móvil. Incluye `at`
+  // (timestamp) para que agregar el MISMO producto dos veces seguidas vuelva
+  // a disparar la animación en vez de quedarse quieto.
+  const [lastAdded, setLastAdded] = useState<LastAdded | null>(null);
   const [appliedCoupon, setAppliedCoupon] = useState<string | null>(null);
   const [appliedPercent, setAppliedPercent] = useState<number>(0);
   const [couponMsg, setCouponMsg] = useState<string | null>(null);
@@ -64,7 +77,18 @@ export function CartProvider({ children }: { children: ReactNode }) {
       }
       return [...prev, { key, product, variant, qty }];
     });
-    setIsOpen(true);
+
+    // En ESCRITORIO se abre el panel del carrito (hay espacio de sobra y es
+    // el patrón esperado). En MÓVIL no: abrir el drawer corta el impulso de
+    // seguir comprando y obliga a cerrarlo cada vez. Ahí se muestra un aviso
+    // discreto abajo (CartToast) que confirma lo agregado y ofrece ir al
+    // carrito sin forzar a nadie.
+    const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
+    if (isMobile) {
+      setLastAdded({ product, variant, qty, at: Date.now() });
+    } else {
+      setIsOpen(true);
+    }
   }
 
   function removeItem(key: string) {
@@ -138,6 +162,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
       value={{
         items, addItem, removeItem, setQty, clear, totalMxn, discountMxn, shippingMxn, finalTotalMxn, count,
         isOpen, openCart: () => setIsOpen(true), closeCart: () => setIsOpen(false),
+        lastAdded, dismissLastAdded: () => setLastAdded(null),
         couponInput, setCouponInput, appliedCoupon, couponMsg, applyCoupon, clearCoupon,
       }}
     >

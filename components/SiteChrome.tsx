@@ -5,6 +5,8 @@ import TopBar from './TopBar';
 import Header from './Header';
 import Footer from './Footer';
 import CartDrawer from './CartDrawer';
+import CartToast from './CartToast';
+import MobileCartBar from './MobileCartBar';
 import NewsletterModal from './NewsletterModal';
 import type { Product } from '@/lib/types';
 
@@ -39,6 +41,9 @@ export default function SiteChrome({
       <Header />
       <main>{children}</main>
       <Footer whatsappNumber={whatsappNumber} whatsappMessage={whatsappMessage} />
+      {/* Solo móvil: aviso de "agregado" y barra persistente de carrito. */}
+      <CartToast />
+      <MobileCartBar />
     </>
   );
 }

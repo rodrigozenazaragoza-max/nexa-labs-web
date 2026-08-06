@@ -23,7 +23,7 @@ export default async function CatalogPage() {
         title="Todos los péptidos"
         image={headerImage}
       />
-      <div className="mx-auto max-w-7xl px-6 py-10">
+      <div className="mx-auto max-w-7xl px-4 py-5 sm:px-6 sm:py-10">
         {products.length === 0 && (
           <p className="text-sm text-muted">
             No hay productos publicados todavía. Si acabas de configurar la tienda, revisa la
