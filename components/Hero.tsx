@@ -96,10 +96,15 @@ export default async function Hero() {
                   style={{ zIndex: isCenter ? 2 : 1 }}
                 >
                   {heroImage ? (
+                    // unoptimized: el optimizador de imágenes de Netlify le
+                    // aplana el canal alfa a estos PNG (por eso salía el
+                    // recuadro aunque el archivo fuente ya estaba bien) —
+                    // sirviéndolo tal cual se respeta la transparencia real.
                     <Image
                       src={heroImage}
                       alt={product.name}
                       fill
+                      unoptimized
                       className="object-contain drop-shadow-2xl"
                       sizes="260px"
                     />
