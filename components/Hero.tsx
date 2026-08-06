@@ -82,13 +82,14 @@ export default async function Hero() {
           // featuredProductSlugs, necesita su propio recorte en
           // public/hero/ (mismo nombre que el slug) — si no existe, cae al
           // tratamiento de tarjeta de antes para no romper la página.
-          <div className="relative flex h-[30rem] items-end justify-center gap-2">
+          <div className="relative flex h-[33rem] items-end justify-center gap-2">
             {ordered.slice(0, 3).map((product, i, arr) => {
               const heroImage = HERO_CUTOUTS[product.slug];
               const fallbackImage = productLeadImage(product);
               const isCenter = i === Math.floor((arr.length - 1) / 2) && arr.length > 1;
-              const height = isCenter ? 'h-[27rem]' : 'h-[21rem]';
-              const width = isCenter ? 'w-48' : 'w-40';
+              // +10% sobre el tamaño anterior (27rem/21rem, 12rem/10rem)
+              const height = isCenter ? 'h-[29.7rem]' : 'h-[23.1rem]';
+              const width = isCenter ? 'w-[13.2rem]' : 'w-[11rem]';
               const animClass = i === 0 ? 'anim-float-bottle-1' : 'anim-float-bottle-2';
               return (
                 <Link
