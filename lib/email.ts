@@ -66,6 +66,14 @@ function escapeHtml(s: string): string {
   return s.replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c] as string));
 }
 
+// Liga directa a /rastrea-pedido con el número de pedido y correo ya en la
+// URL, para que el botón del correo abra la página con los datos
+// prellenados — el cliente no tiene que volver a escribirlos.
+function trackOrderUrl(orderNumber: string, email: string): string {
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://nexa-labs-peptides.netlify.app';
+  return `${siteUrl}/rastrea-pedido?pedido=${encodeURIComponent(orderNumber)}&correo=${encodeURIComponent(email)}`;
+}
+
 function orderConfirmationHtml(data: OrderConfirmationData): string {
   return `
   <div style="background:#f1f5f9;padding:24px 0;font-family:Arial,Helvetica,sans-serif;">
@@ -104,6 +112,9 @@ function orderConfirmationHtml(data: OrderConfirmationData): string {
         <div style="margin-top:20px;padding:16px;background:#eff6ff;border-radius:8px;">
           <div style="font-weight:700;color:#0f172a;font-size:13px;">📦 ¿Qué sigue?</div>
           <div style="font-size:13px;color:#334155;margin-top:6px;">Estamos empacando tu pedido con cuidado. Te avisaremos por correo en cuanto salga a reparto, con tu número de rastreo.</div>
+        </div>
+        <div style="text-align:center;margin-top:24px;">
+          <a href="${trackOrderUrl(data.orderNumber, data.customerEmail)}" style="display:inline-block;background:#0f172a;color:#ffffff;text-decoration:none;font-weight:700;font-size:13px;padding:14px 28px;border-radius:8px;">Rastrear mi pedido →</a>
         </div>
       </div>
       <div style="padding:20px 24px;border-top:1px solid #e2e8f0;text-align:center;">

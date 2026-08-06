@@ -64,25 +64,33 @@ export default async function Hero() {
 
         {ordered.length > 0 ? (
           // Las fotos de producto no son PNGs recortados — traen su propio
-          // fondo de estudio "horneado" en la imagen. En vez de forzar una
-          // máscara que asume transparencia (se veía como un halo
-          // fantasma), las mostramos como tarjetas con esquinas
-          // redondeadas y bg-primary-light detrás — mismo tratamiento que
-          // ya usa ProductCard en el resto del sitio, así que se sienten
-          // parte del mismo sistema en vez de "pegadas" mal recortadas.
-          <div className="relative flex h-96 items-end justify-center gap-4">
+          // fondo de estudio "horneado" en la imagen (blanco/menta muy
+          // pálido), distinto al degradado del hero. Antes las tarjetas
+          // usaban bg-primary-light, que es más verde que la foto y se veía
+          // como un recuadro pegado. Ahora ponemos un "glow" radial detrás,
+          // del mismo tono pálido que trae la foto, que se difumina hacia
+          // el degradado del hero — así el frasco se siente flotando en vez
+          // de encerrado en una tarjeta.
+          <div className="relative flex h-[30rem] items-end justify-center gap-5">
+            <div
+              className="absolute inset-[-3rem] -z-10 blur-2xl"
+              style={{
+                background:
+                  'radial-gradient(ellipse 60% 65% at 50% 45%, #f6faf8 0%, rgba(246,250,248,0) 72%)',
+              }}
+            />
             {ordered.slice(0, 3).map((product, i, arr) => {
               const image = productLeadImage(product);
               const isCenter = i === Math.floor((arr.length - 1) / 2) && arr.length > 1;
-              const height = isCenter ? 'h-[22rem]' : 'h-[18rem]';
-              const rotate = i === 0 ? '-rotate-3' : i === arr.length - 1 ? 'rotate-3' : 'rotate-0';
+              const height = isCenter ? 'h-[27rem]' : 'h-[21rem]';
+              const rotate = i === 0 ? '-rotate-2' : i === arr.length - 1 ? 'rotate-2' : 'rotate-0';
               const animClass = i === 0 ? 'anim-float-bottle-1' : 'anim-float-bottle-2';
               return (
                 <Link
                   key={product.id}
                   href={`/productos/${product.slug}`}
-                  className={`relative w-36 flex-shrink-0 ${height} ${rotate} ${animClass} overflow-hidden rounded-theme bg-primary-light shadow-xl transition-transform hover:rotate-0`}
-                  style={{ zIndex: isCenter ? 2 : 1 }}
+                  className={`relative w-44 flex-shrink-0 ${height} ${rotate} ${animClass} overflow-hidden rounded-theme shadow-xl transition-transform hover:rotate-0`}
+                  style={{ zIndex: isCenter ? 2 : 1, backgroundColor: '#f6faf8' }}
                 >
                   {image ? (
                     <Image
@@ -90,7 +98,7 @@ export default async function Hero() {
                       alt={product.name}
                       fill
                       className="object-cover"
-                      sizes="200px"
+                      sizes="260px"
                     />
                   ) : null}
                 </Link>

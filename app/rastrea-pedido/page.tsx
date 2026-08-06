@@ -16,7 +16,11 @@ const STEPS = [
   { icon: Home, title: 'Entregado', desc: 'Recibes tu pedido en la dirección registrada.' },
 ];
 
-export default async function RastreaPedidoPage() {
+export default async function RastreaPedidoPage({
+  searchParams,
+}: {
+  searchParams: { pedido?: string; correo?: string };
+}) {
   const supabase = createClient();
   const headerImage = await getSectionHeaderImage(supabase);
   const settings = await getSiteSettings(supabase);
@@ -27,7 +31,11 @@ export default async function RastreaPedidoPage() {
       <SectionHeader crumbs={[{ label: 'Inicio', href: '/' }, { label: 'Rastrea tu Pedido' }]} title="Rastrea tu Pedido" image={headerImage} />
 
       <div className="mx-auto max-w-3xl px-6 py-14">
-        <TrackOrderCard />
+        <TrackOrderCard
+          initialOrderNumber={searchParams.pedido}
+          initialEmail={searchParams.correo}
+          whatsappNumber={settings.whatsappNumber}
+        />
 
         <div className="mt-12 grid grid-cols-2 gap-6 sm:grid-cols-4">
           {STEPS.map((s) => (

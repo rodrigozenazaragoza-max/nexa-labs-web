@@ -32,7 +32,7 @@ export const siteConfig = {
     // Slugs de los productos que se muestran con foto en el hero de la
     // home. Cambia esta lista para destacar otros productos — el
     // componente jala la foto y el nombre directo de Supabase.
-    featuredProductSlugs: ['mots-c', 'retatrutida'],
+    featuredProductSlugs: ['retatrutida', 'mots-c'],
   },
   trustBar: [
     { icon: 'truck', title: 'Envío gratis y rápido', desc: 'Envío gratis en pedidos a partir de $1,999 MXN.' },

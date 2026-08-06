@@ -42,6 +42,7 @@ export async function POST(req: Request) {
 
   return NextResponse.json({
     orderNumber: order.order_number,
+    status: order.status,
     statusLabel: STATUS_LABELS[order.status] ?? order.status,
     createdAt: order.created_at,
     totalMxn: order.total_mxn,
