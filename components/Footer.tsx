@@ -75,19 +75,24 @@ export default function Footer({ whatsappNumber, whatsappMessage }: { whatsappNu
       </div>
 
       <div className="border-t border-primary/15">
-        <div id="cumplimiento" className="mx-auto max-w-7xl px-6 py-6">
-          <h4 className="mb-2 text-xs font-bold uppercase tracking-wide text-primary-dark">Cumplimiento</h4>
-          <ul className="max-w-3xl space-y-1.5 text-xs leading-relaxed text-muted">
-            <li>• Etiquetado &quot;For Research Use Only — Not for Human or Animal Use&quot; en cada producto.</li>
-            <li>• Ninguna página incluye dosis, vía de administración ni beneficios de salud.</li>
-            <li>• Nos reservamos el derecho de rechazar pedidos con intención aparente de uso humano.</li>
-          </ul>
-          <p className="mt-4 max-w-2xl text-xs leading-relaxed text-muted">
-            {siteConfig.brand.name} — {siteConfig.contact.address}. Los productos son compuestos de
-            referencia para investigación científica (RUO). No son medicamentos, suplementos ni
-            productos de consumo humano.
+        {/* Aviso RUO condensado. Antes eran tres viñetas + un párrafo que
+            repetían lo mismo, y dos de las viñetas ya viven en Términos
+            (rechazo de pedidos, política de no dar dosis). Aquí queda solo
+            lo que de verdad debe aparecer en TODAS las páginas: qué son
+            los productos y qué no son. */}
+        <div id="cumplimiento" className="mx-auto flex max-w-7xl flex-col gap-3 px-6 py-6 sm:flex-row sm:items-start sm:justify-between">
+          <p className="max-w-2xl text-xs leading-relaxed text-muted">
+            <span className="font-bold uppercase tracking-wide text-primary-dark">Uso exclusivo en investigación · </span>
+            Todos los productos de {siteConfig.brand.name} son compuestos de referencia para
+            investigación científica (RUO), etiquetados <em>Not for Human or Animal Use</em>. No son
+            medicamentos, suplementos ni productos de consumo humano.{' '}
+            <a href="/terminos" className="font-semibold text-primary-dark hover:underline">
+              Ver términos completos
+            </a>
           </p>
-          <p className="mt-3 text-xs text-muted/80">© {new Date().getFullYear()} {siteConfig.brand.name}. Todos los derechos reservados.</p>
+          <p className="shrink-0 text-xs text-muted/80">
+            © {new Date().getFullYear()} {siteConfig.brand.name}
+          </p>
         </div>
       </div>
     </footer>

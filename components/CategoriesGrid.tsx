@@ -3,7 +3,9 @@ import { iconMap } from './icons';
 
 export default function CategoriesGrid() {
   return (
-    <section className="bg-primary-light pb-16">
+    // Fondo blanco: antes compartía el verde menta de la sección anterior y
+    // los iconos —también en verde claro— se perdían contra él.
+    <section className="bg-white py-14">
       <div className="mx-auto max-w-6xl px-6 text-center">
         <p className="mx-auto max-w-md text-sm text-muted">
           Explora nuestras categorías y encuentra el péptido ideal para tu investigación.
