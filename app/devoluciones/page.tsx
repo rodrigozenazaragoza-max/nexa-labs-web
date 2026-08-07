@@ -1,7 +1,10 @@
+// Se regenera cada 5 min y se sirve desde caché — el catálogo no cambia
+// por visitante, así que no hay razón para renderizar de cero en cada clic.
+export const revalidate = 300;
+
 import SectionHeader from '@/components/SectionHeader';
 import ReturnRequestCard from '@/components/faq/ReturnRequestCard';
 import { siteConfig } from '@/lib/site-config';
-import { createClient } from '@/lib/supabase/server';
 import { getSectionHeaderImage } from '@/lib/section-header-image';
 import { getSettings } from '@/lib/data';
 import SupportContactCard from '@/components/SupportContactCard';
@@ -9,8 +12,7 @@ import SupportContactCard from '@/components/SupportContactCard';
 export const metadata = { title: `Devoluciones | ${siteConfig.brand.name}` };
 
 export default async function DevolucionesPage() {
-  const supabase = createClient();
-  const headerImage = await getSectionHeaderImage(supabase);
+  const headerImage = await getSectionHeaderImage();
   const settings = await getSettings();
   const { returnWindowDays } = siteConfig.policies;
 

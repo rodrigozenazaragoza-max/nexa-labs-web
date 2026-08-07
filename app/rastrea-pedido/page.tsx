@@ -2,7 +2,6 @@ import { PackageCheck, PackageSearch, Truck, Home } from 'lucide-react';
 import SectionHeader from '@/components/SectionHeader';
 import TrackOrderCard from '@/components/faq/TrackOrderCard';
 import { siteConfig } from '@/lib/site-config';
-import { createClient } from '@/lib/supabase/server';
 import { getSectionHeaderImage } from '@/lib/section-header-image';
 import { getSettings } from '@/lib/data';
 import SupportContactCard from '@/components/SupportContactCard';
@@ -21,9 +20,7 @@ export default async function RastreaPedidoPage({
 }: {
   searchParams: { pedido?: string; correo?: string };
 }) {
-  const supabase = createClient();
-  const headerImage = await getSectionHeaderImage(supabase);
-  const settings = await getSettings();
+  const [headerImage, settings] = await Promise.all([getSectionHeaderImage(), getSettings()]);
   const { shippingDaysMin, shippingDaysMax } = siteConfig.policies;
 
   return (

@@ -1,5 +1,5 @@
 import { cache } from 'react';
-import { createClient } from './supabase/server';
+import { createPublicClient } from './supabase/server';
 import { siteConfig } from './site-config';
 import type { Product } from './types';
 
@@ -20,7 +20,7 @@ import type { Product } from './types';
 // sitio (42 productos + 84 variantes ≈ 177 kB) y se reutiliza en casi todas
 // las páginas — por eso es la que más gana con memoizarse.
 export const getAllProducts = cache(async (): Promise<Product[]> => {
-  const supabase = createClient();
+  const supabase = createPublicClient();
   const { data } = await supabase
     .from('products')
     .select('*, variants:product_variants(*)')
@@ -31,7 +31,7 @@ export const getAllProducts = cache(async (): Promise<Product[]> => {
 // Unidades vendidas por producto, para ordenar "Más Vendidos" y el pool de
 // recomendados del carrito.
 export const getUnitsSoldByProduct = cache(async (): Promise<Map<string, number>> => {
-  const supabase = createClient();
+  const supabase = createPublicClient();
   const { data } = await supabase.from('order_items').select('qty, product_id, order:orders(status)');
 
   const units = new Map<string, number>();
@@ -48,7 +48,7 @@ export const getUnitsSoldByProduct = cache(async (): Promise<Map<string, number>
 
 // Configuración del sitio (número de WhatsApp y mensaje por defecto).
 export const getSettings = cache(async () => {
-  const supabase = createClient();
+  const supabase = createPublicClient();
   const { data } = await supabase
     .from('settings')
     .select('whatsapp_number, whatsapp_message')

@@ -1,3 +1,7 @@
+// Se regenera cada 5 min y se sirve desde caché — el catálogo no cambia
+// por visitante, así que no hay razón para renderizar de cero en cada clic.
+export const revalidate = 300;
+
 import PolicyLayout from '@/components/PolicyLayout';
 import { siteConfig } from '@/lib/site-config';
 import Pending from '@/components/faq/Pending';

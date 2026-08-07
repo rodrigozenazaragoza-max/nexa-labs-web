@@ -1,9 +1,12 @@
+// Se regenera cada 5 min y se sirve desde caché — el catálogo no cambia
+// por visitante, así que no hay razón para renderizar de cero en cada clic.
+export const revalidate = 300;
+
 import Link from 'next/link';
 import { Calculator, ArrowRight } from 'lucide-react';
 import SectionHeader from '@/components/SectionHeader';
 import SupportContactCard from '@/components/SupportContactCard';
 import { siteConfig } from '@/lib/site-config';
-import { createClient } from '@/lib/supabase/server';
 import { getSectionHeaderImage } from '@/lib/section-header-image';
 import { getSettings } from '@/lib/data';
 
@@ -27,8 +30,7 @@ const TOOLS = [
 ];
 
 export default async function HerramientasPage() {
-  const supabase = createClient();
-  const headerImage = await getSectionHeaderImage(supabase);
+  const headerImage = await getSectionHeaderImage();
   const settings = await getSettings();
 
   return (

@@ -1,3 +1,7 @@
+// Se regenera cada 5 min y se sirve desde caché — el catálogo no cambia
+// por visitante, así que no hay razón para renderizar de cero en cada clic.
+export const revalidate = 300;
+
 import { getAllProducts, getBestsellersCached } from '@/lib/data';
 import Hero from '@/components/Hero';
 import TrustBar from '@/components/TrustBar';

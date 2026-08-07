@@ -1,10 +1,13 @@
+// Se regenera cada 5 min y se sirve desde caché — el catálogo no cambia
+// por visitante, así que no hay razón para renderizar de cero en cada clic.
+export const revalidate = 300;
+
 import { FlaskConical, FileCheck2, Microscope, PackageSearch, Truck, Beaker } from 'lucide-react';
 import SectionHeader from '@/components/SectionHeader';
 import Pending from '@/components/faq/Pending';
 import CoaLibrary, { type CoaEntry } from '@/components/CoaLibrary';
 import SupportContactCard from '@/components/SupportContactCard';
 import { siteConfig } from '@/lib/site-config';
-import { createClient } from '@/lib/supabase/server';
 import { getSectionHeaderImage } from '@/lib/section-header-image';
 import { getAllProducts, getSettings } from '@/lib/data';
 
@@ -55,9 +58,8 @@ const WHAT_IS_CHECKED = [
 ];
 
 export default async function CertificadosPage() {
-  const supabase = createClient();
   const [headerImage, settings, allProducts] = await Promise.all([
-    getSectionHeaderImage(supabase),
+    getSectionHeaderImage(),
     getSettings(),
     getAllProducts(),
   ]);

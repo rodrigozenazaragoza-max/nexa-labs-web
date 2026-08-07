@@ -1,4 +1,7 @@
-import { createClient } from '@/lib/supabase/server';
+// Se regenera cada 5 min y se sirve desde caché — el catálogo no cambia
+// por visitante, así que no hay razón para renderizar de cero en cada clic.
+export const revalidate = 300;
+
 import CatalogGrid from '@/components/CatalogGrid';
 import SectionHeader from '@/components/SectionHeader';
 import { getSectionHeaderImage } from '@/lib/section-header-image';
@@ -6,12 +9,11 @@ import { getAllProducts } from '@/lib/data';
 import type { Product } from '@/lib/types';
 
 export default async function CatalogPage() {
-  const supabase = createClient();
   // El catálogo sale de la consulta memoizada (la misma que ya usó el
   // layout en esta petición) y se ordena por nombre en memoria.
   const [allProducts, headerImage] = await Promise.all([
     getAllProducts(),
-    getSectionHeaderImage(supabase),
+    getSectionHeaderImage(),
   ]);
   const products = [...allProducts].sort((a, b) => a.name.localeCompare(b.name));
 

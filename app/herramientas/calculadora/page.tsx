@@ -1,10 +1,13 @@
+// Se regenera cada 5 min y se sirve desde caché — el catálogo no cambia
+// por visitante, así que no hay razón para renderizar de cero en cada clic.
+export const revalidate = 300;
+
 import Link from 'next/link';
 import { Droplets, Syringe, FlaskConical, Snowflake, TriangleAlert } from 'lucide-react';
 import SectionHeader from '@/components/SectionHeader';
 import ReconstitutionCalculator, { type CalcProduct } from '@/components/tools/ReconstitutionCalculator';
 import SupportContactCard from '@/components/SupportContactCard';
 import { siteConfig } from '@/lib/site-config';
-import { createClient } from '@/lib/supabase/server';
 import { getSectionHeaderImage } from '@/lib/section-header-image';
 import { getAllProducts, getSettings } from '@/lib/data';
 
@@ -95,9 +98,8 @@ function parseMg(label: string): number | null {
 }
 
 export default async function CalculadoraPage() {
-  const supabase = createClient();
   const [headerImage, settings, allProducts] = await Promise.all([
-    getSectionHeaderImage(supabase),
+    getSectionHeaderImage(),
     getSettings(),
     getAllProducts(),
   ]);

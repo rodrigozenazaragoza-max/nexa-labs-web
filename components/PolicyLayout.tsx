@@ -15,7 +15,7 @@ export default async function PolicyLayout({
   contactQuestion?: string;
 }) {
   const supabase = createClient();
-  const headerImage = await getSectionHeaderImage(supabase);
+  const headerImage = await getSectionHeaderImage();
 
   return (
     <div>

@@ -1,8 +1,11 @@
+// Se regenera cada 5 min y se sirve desde caché — el catálogo no cambia
+// por visitante, así que no hay razón para renderizar de cero en cada clic.
+export const revalidate = 300;
+
 import Link from 'next/link';
 import { FlaskConical, Eye, Headset, MapPin, Thermometer, Lock } from 'lucide-react';
 import { siteConfig } from '@/lib/site-config';
 import SectionHeader from '@/components/SectionHeader';
-import { createClient } from '@/lib/supabase/server';
 import { getSectionHeaderImage } from '@/lib/section-header-image';
 
 export const metadata = { title: `Nosotros | ${siteConfig.brand.name}` };
@@ -48,8 +51,7 @@ const values = [
 ];
 
 export default async function NosotrosPage() {
-  const supabase = createClient();
-  const headerImage = await getSectionHeaderImage(supabase);
+  const headerImage = await getSectionHeaderImage();
 
   return (
     <div>

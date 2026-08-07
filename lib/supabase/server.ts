@@ -48,6 +48,23 @@ export function createClient() {
 // Por eso este cliente usa el SDK plano de supabase-js, sin cookies ni
 // manejo de sesión — así siempre se autentica con la service_role key,
 // sin importar si quien hace la petición tiene sesión iniciada o no.
+// Cliente para DATOS PÚBLICOS (catálogo, ajustes del sitio) — sin cookies.
+//
+// RENDIMIENTO: leer cookies dentro de un Server Component obliga a Next.js a
+// renderizar la página de forma dinámica en CADA visita, sin poder cachear
+// nada. Como el catálogo y los ajustes son iguales para todos, no hay razón
+// para pagar ese costo: este cliente no toca cookies, así que las páginas
+// públicas sí pueden servirse desde caché.
+//
+// Usa la anon key, o sea que RLS se sigue aplicando igual que antes.
+export function createPublicClient() {
+  return createSupabaseJsClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    { auth: { autoRefreshToken: false, persistSession: false } }
+  );
+}
+
 export function createServiceRoleClient() {
   return createSupabaseJsClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,

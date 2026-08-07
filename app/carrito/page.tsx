@@ -1,5 +1,4 @@
 import Link from 'next/link';
-import { createClient } from '@/lib/supabase/server';
 import { siteConfig } from '@/lib/site-config';
 import CartList from '@/components/CartList';
 import SectionHeader from '@/components/SectionHeader';
@@ -7,13 +6,12 @@ import { getSectionHeaderImage } from '@/lib/section-header-image';
 import { getBestsellersCached, getDiluentProduct } from '@/lib/data';
 
 export default async function CarritoPage() {
-  const supabase = createClient();
   // Todo sale de las consultas memoizadas que el layout ya hizo en esta
   // misma petición — cero viajes extra a Supabase.
   const [diluentProduct, recommendedPool, headerImage] = await Promise.all([
     getDiluentProduct(),
     getBestsellersCached(8, siteConfig.diluent.slug),
-    getSectionHeaderImage(supabase),
+    getSectionHeaderImage(),
   ]);
 
   return (
